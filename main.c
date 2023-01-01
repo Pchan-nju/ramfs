@@ -12,7 +12,7 @@ int main() {
   assert(rwrite(fd, "hello", 5) == 5);
   assert(rseek(fd, 0, SEEK_CUR) == 5);
   assert(rseek(fd, 0, SEEK_SET) == 0);
-  char buf[7];
+  char buf[8];
   assert(rread(fd, buf, 7) == 5);
   assert(memcmp(buf, "hello", 5) == 0);
   assert(rseek(fd, 3, SEEK_END) == 8);
