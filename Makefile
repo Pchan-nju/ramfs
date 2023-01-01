@@ -8,7 +8,7 @@ run: test
 
 git:
 	git add -A
-	git commit -am "compile"
+	git commit --allow-empty -m "compile"
 
 clean:
 	-rm test
