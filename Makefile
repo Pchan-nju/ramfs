@@ -1,10 +1,10 @@
 .PHONY: run binary clean submit git
 
-test: git
-	gcc test.c ramfs.c -o test
+ramfs: git
+	gcc test.c ramfs.c -o ramfs
 
-run: test
-	./test
+run: ramfs
+	./ramfs
 
 git:
 	git add -A
