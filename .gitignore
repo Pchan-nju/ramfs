@@ -1,4 +1,8 @@
 *
 !.gitignore
 !ramfs.c
+!Makefile
+!ramfs.h
+!main.c
+!README.txt
 
