@@ -11,8 +11,14 @@ git:
 	git commit --allow-empty -m "compile"
 
 clean:
-	-rm test
+	@rm test
 
 submit:
-  curl -X POST -F "TOKEN=$(TOKEN)" -F "FILE=@archive" https://oj.cpl.icu/api/v2/submission/lab
-
+	$(eval TEMP := $(shell mktemp -d))
+	$(eval BASE := $(shell basename $(CURDIR)))
+	$(eval FILE := ${TEMP}/${TOKEN}.zip)
+	@cd .. && zip -qr ${FILE} ${BASE}/.git
+	@echo "Created submission archive ${FILE}"
+	@curl -m 5 -w "\n" -X POST -F "TOKEN=${TOKEN}" -F "FILE=@${FILE}" \
+		https://oj.cpl.icu/api/v2/submission/lab
+	@rm -r ${TEMP}
