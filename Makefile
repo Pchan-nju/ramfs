@@ -8,7 +8,7 @@ run: test
 
 git:
 	git add -A
-	git commit -m "compile"
+	git commit -am "compile"
 
 clean:
 	-rm test
