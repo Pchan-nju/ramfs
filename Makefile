@@ -1,7 +1,7 @@
 .PHONY: run binary clean submit git
 
 ramfs: git
-	gcc test.c ramfs.c -o ramfs
+	gcc main.c ramfs.c -o ramfs
 
 run: ramfs
 	./ramfs
