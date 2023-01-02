@@ -8,7 +8,7 @@ int main() {
   assert(rmkdir("//dir") == -1);
   assert(rmkdir("/a/b") == -1);
   int fd;
-  assert((fd = ropen("//dir///////1.txt", O_CREAT | O_RDWR)) > 0);
+  assert((fd = ropen("//dir///////1.txt", O_CREAT | O_RDWR)) >= 0);
   assert(rwrite(fd, "hello", 5) == 5);
   assert(rseek(fd, 0, SEEK_CUR) == 5);
   assert(rseek(fd, 0, SEEK_SET) == 0);

@@ -1,10 +1,13 @@
-.PHONY: run binary clean submit git
+.PHONY: run binary clean submit git gdb
 
 ramfs: git
-	gcc main.c ramfs.c -o ramfs
+	gcc -g -std=c17 -O2 main.c ramfs.c -o ramfs
 
 run: ramfs
 	./ramfs
+
+gdb: ramfs
+	gdb ramfs
 
 git:
 	git add -A
