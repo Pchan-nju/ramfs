@@ -13,7 +13,7 @@
 
 typedef intptr_t ssize_t;
 typedef uintptr_t size_t;
-typedef intptr_t off_t;
+typedef long off_t;
 
 int ropen(const char *pathname, int flags);
 int rclose(int fd);
