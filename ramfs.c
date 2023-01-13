@@ -1,7 +1,17 @@
 #include "ramfs.h"
-/* modify this file freely */
+#include <string.h>
+#include <stdlib.h>
+#include "stdio.h"
+
+typedef struct File
+{
+	char name[32];
+	int index;
+	struct File *sonFile, *nextFile;
+} rFile;
 
 int ropen(const char *pathname, int flags) {
+    // TODO();
 }
 
 int rclose(int fd) {
@@ -17,6 +27,8 @@ off_t rseek(int fd, off_t offset, int whence) {
 }
 
 int rmkdir(const char *pathname) {
+    extern rFile *root;
+    printf("index : %d", root -> index);
 }
 
 int rrmdir(const char *pathname) {
@@ -26,5 +38,9 @@ int runlink(const char *pathname) {
 }
 
 void init_ramfs() {
-  // TODO();
+    rFile *root = (rFile *)malloc(sizeof(rFile));
+    strcpy(root->name, "root");
+    root->nextFile = NULL;
+    root->sonFile = NULL;
+    root->index = 1;
 }
