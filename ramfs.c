@@ -29,7 +29,8 @@ off_t rseek(int fd, off_t offset, int whence) {
 }
 
 int rmkdir(const char *pathname) {
-    printf("%d", root->descriptor);
+    printf("descriptor%d\n", root->descriptor);
+    return 0;
 }
 
 int rrmdir(const char *pathname) {
