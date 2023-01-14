@@ -6,9 +6,10 @@
 typedef struct File
 {
 	char name[32];
-	int index;
+	int descriptor;
 	struct File *sonFile, *nextFile;
 } rFile;
+
 rFile *root;
 
 int ropen(const char *pathname, int flags) {
@@ -28,7 +29,7 @@ off_t rseek(int fd, off_t offset, int whence) {
 }
 
 int rmkdir(const char *pathname) {
-    printf("index : %d", root -> index);
+    printf("%d", root->descriptor);
 }
 
 int rrmdir(const char *pathname) {
@@ -42,5 +43,5 @@ void init_ramfs() {
     strcpy(root->name, "root");
     root->nextFile = NULL;
     root->sonFile = NULL;
-    root->index = 1;
+    root->descriptor = 1;
 }
