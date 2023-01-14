@@ -8,7 +8,7 @@ typedef struct File
 	char name[32];
 	int index;
 	struct File *sonFile, *nextFile;
-} rFile;
+} rFile *root;
 
 int ropen(const char *pathname, int flags) {
     // TODO();
@@ -27,7 +27,6 @@ off_t rseek(int fd, off_t offset, int whence) {
 }
 
 int rmkdir(const char *pathname) {
-    extern rFile *root;
     printf("index : %d", root -> index);
 }
 
@@ -38,7 +37,7 @@ int runlink(const char *pathname) {
 }
 
 void init_ramfs() {
-    rFile *root = (rFile *)malloc(sizeof(rFile));
+    root = (rFile *)malloc(sizeof(rFile));
     strcpy(root->name, "root");
     root->nextFile = NULL;
     root->sonFile = NULL;
