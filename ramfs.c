@@ -8,7 +8,8 @@ typedef struct File
 	char name[32];
 	int index;
 	struct File *sonFile, *nextFile;
-} rFile *root;
+} rFile;
+rFile *root;
 
 int ropen(const char *pathname, int flags) {
     // TODO();
