@@ -49,6 +49,13 @@ int rmkdir(const char *pathname) {
                     j++;
                 }
                 if (isLastOne) {
+                    rFile * p = ptr->sonFile;
+                    while(p != NULL)
+                    {
+                        if (strcmp(p->name, str) == 0)
+                            return -1;
+                        p = p->nextFile;
+                    }
                     rFile * newDir = (rFile *)malloc(sizeof(rFile));
                     strcpy(newDir->name, str);
                     newDir->nextFile = ptr->sonFile;
@@ -56,14 +63,19 @@ int rmkdir(const char *pathname) {
                 }
                 else {
                     rFile * p = ptr->sonFile;
+                    bool flag = false;
                     while (p != NULL)
                     {
                         if (strcmp(p->name, str) == 0) {
+                            flag = true;
                             ptr = p;
                             break;
                         }
                     }
+                    if (!flag)
+                        return -1;
                 }
+                memset(str, 0, sizeof(str));
                 len = 0;
             }
         }
@@ -80,6 +92,7 @@ int rmkdir(const char *pathname) {
         }
         i++;
     }
+    return 0;
 }
 
 int rrmdir(const char *pathname) {
