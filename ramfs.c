@@ -30,6 +30,7 @@ off_t rseek(int fd, off_t offset, int whence) {
 }
 
 int rmkdir(const char *pathname) {
+    printf("%s\n",root->sonFile->name);
     if (strlen(pathname) > 1024)
         return -1;
     int i = 0;
