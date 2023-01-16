@@ -30,7 +30,9 @@ off_t rseek(int fd, off_t offset, int whence) {
 }
 
 int rmkdir(const char *pathname) {
-    printf("rmkdir(%s): \n",pathname);
+    static int cnt = 0;
+    cnt++;
+    printf("rmkdir_%d: \n", cnt);
     if (strlen(pathname) > 1024) {
         printf("Error : the pathname is too long\n");
         return -1;
