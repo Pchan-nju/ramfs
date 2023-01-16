@@ -40,12 +40,15 @@ int rmkdir(const char *pathname) {
     int len = 0;
     rFile * ptr = root;
     while (pathname[i] != '\0') {
+        printf("len = %d - ",len);
+        for(int i = 0; i < len; i++)
+            printf("%c",str[i]);
+        printf("\n");
         if (pathname[i] == '/') {
             if (len != 0) {
                 int j = i + 1;
                 bool isLastOne = true;
                 while (pathname[j] != '\0') {
-                    printf("case\n");
                     if (pathname[j] != '/') {
                         isLastOne = false;
                         break;
