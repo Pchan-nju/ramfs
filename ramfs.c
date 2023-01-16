@@ -120,6 +120,7 @@ int rmkdir(const char *pathname) {
     }
     if (len != 0) {
         rFile * p = ptr->sonFile;
+        str[len] = '\0';
         printf("len = %d && str = %s\n",len,str);
         while(p != NULL) {
             if (strcmp(p->name, str) == 0) {
@@ -145,8 +146,6 @@ int rmkdir(const char *pathname) {
         p = p->nextFile;
     }
     printf("\n");
-
-    memset(str, '\0', sizeof(str));
     return 0;
 }
 
