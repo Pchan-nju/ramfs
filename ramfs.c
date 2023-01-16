@@ -109,8 +109,10 @@ int rmkdir(const char *pathname) {
             }
             str[len] = pathname[i];
             len ++;
-            if (len > 32)
-                return  -1;
+            if (len > 32) {
+                printf("Error : the direction name is too long\n");
+                return -1;
+            }
         }
         i++;
     }
