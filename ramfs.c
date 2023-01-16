@@ -40,6 +40,7 @@ int rmkdir(const char *pathname) {
     int len = 0;
     rFile * ptr = root;
     while (pathname[i] != '\0') {
+        printf("case\n");
         if (pathname[i] == '/') {
             if (len != 0) {
                 int j = i + 1;
