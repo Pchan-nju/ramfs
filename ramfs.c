@@ -120,7 +120,7 @@ int rmkdir(const char *pathname) {
     }
     if (len != 0) {
         rFile * p = ptr->sonFile;
-//        printf("str = %s\n",str);
+        printf("len = %d && str = %s\n",len,str);
         while(p != NULL) {
             if (strcmp(p->name, str) == 0) {
                 printf("Error : the direction has existed\n");
