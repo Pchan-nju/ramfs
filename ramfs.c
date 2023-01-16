@@ -33,6 +33,10 @@ int rmkdir(const char *pathname) {
     static int cnt = 0;
     cnt++;
     printf("rmkdir_%d: \n", cnt);
+    if(pathname[0] != '/') {
+        printf(("Error : the pathname is not started with '/' \n"));
+        return -1;
+    }
     if (strlen(pathname) > 1024) {
         printf("Error : the pathname is too long\n");
         return -1;
@@ -99,8 +103,10 @@ int rmkdir(const char *pathname) {
             if ((pathname[i] < '0' || pathname[i] > '9') &&
                 (pathname[i] < 'a' || pathname[i] > 'z') &&
                 (pathname[i] < 'A' || pathname[i] > 'Z') &&
-                pathname[i] != '.')
+                pathname[i] != '.') {
+                printf("Error : pathname is illegal\n");
                 return -1;
+            }
             str[len] = pathname[i];
             len ++;
             if (len > 32)
