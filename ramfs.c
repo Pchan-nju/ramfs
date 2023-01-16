@@ -58,6 +58,7 @@ int rmkdir(const char *pathname) {
                         p = p->nextFile;
                     }
                     rFile * newDir = (rFile *)malloc(sizeof(rFile));
+                    printf("str = %s\n",str);
                     strcpy(newDir->name, str);
                     newDir->nextFile = ptr->sonFile;
                     ptr->sonFile = newDir;
