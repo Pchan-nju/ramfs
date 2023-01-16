@@ -136,6 +136,15 @@ int rmkdir(const char *pathname) {
         ptr->sonFile = newDir;
     }
     printf("Success\n");
+    rFile * p = root;
+    printf("1-root\n");
+    p = root->sonFile;
+    printf("2");
+    while (p != NULL) {
+        printf("-%s", p->name);
+        p = p->nextFile;
+    }
+    printf("\n");
     return 0;
 }
 
