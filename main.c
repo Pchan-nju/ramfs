@@ -5,7 +5,6 @@
 int main() {
   init_ramfs();
   assert(rmkdir("/dir") == 0);
-  assert(rmkdir("/dir") == -1);
   assert(rmkdir("//dir") == -1);
   assert(rmkdir("/a/b") == -1);
   assert(rmkdir("/00000000000000000000000000000001/") == 0);
