@@ -68,7 +68,9 @@ int rmkdir(const char *pathname) {
                         p = p->nextFile;
                     }
                     rFile * newDir = (rFile *)malloc(sizeof(rFile));
-                    strcpy(newDir->name, str);
+//                    strcpy(newDir->name, str);
+                    for(int k = 0; k < len; k++)
+                        newDir->name[k] = str[k];
                     newDir->nextFile = ptr->sonFile;
                     ptr->sonFile = newDir;
                 }
