@@ -52,6 +52,7 @@ int rmkdir(const char *pathname) {
 //        printf("\n");
         if (pathname[i] == '/') {
             if (len != 0) {
+                str[len] = '\0';
                 int j = i + 1;
                 bool isLastOne = true;
                 while (pathname[j] != '\0') {
@@ -73,7 +74,7 @@ int rmkdir(const char *pathname) {
                     }
                     rFile * newDir = (rFile *)malloc(sizeof(rFile));
 //                    strcpy(newDir->name, str);
-                    for(int k = 0; k < len; k++)
+                    for(int k = 0; k <= len; k++)
                         newDir->name[k] = str[k];
                     newDir->nextFile = ptr->sonFile;
                     ptr->sonFile = newDir;
@@ -131,21 +132,12 @@ int rmkdir(const char *pathname) {
         }
         rFile * newDir = (rFile *)malloc(sizeof(rFile));
 //        strcpy(newDir->name, str);
-        for(int k = 0; k < len; k++)
+        for(int k = 0; k <= len; k++)
             newDir->name[k] = str[k];
         newDir->nextFile = ptr->sonFile;
         ptr->sonFile = newDir;
     }
     printf("Success\n");
-    rFile * p = root;
-    printf("1-root\n");
-    p = root->sonFile;
-    printf("2");
-    while (p != NULL) {
-        printf("-%s", p->name);
-        p = p->nextFile;
-    }
-    printf("\n");
     return 0;
 }
 
