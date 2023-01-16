@@ -92,7 +92,6 @@ int rmkdir(const char *pathname) {
             }
         }
         else {
-            printf("case 8\n");
             if ((pathname[i] < '0' || pathname[i] > '9') &&
                 (pathname[i] < 'a' || pathname[i] > 'z') &&
                 (pathname[i] < 'A' || pathname[i] > 'Z') &&
