@@ -42,7 +42,7 @@ int rmkdir(const char *pathname) {
     int len = 0;
     rFile * ptr = root;
     while (pathname[i] != '\0') {
-        printf("len = %d && i = %d - ", len, i);
+//        printf("len = %d && i = %d - ", len, i);
         for(int k = 0; k < len; k++)
             printf("%c",str[k]);
         printf("\n");
