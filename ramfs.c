@@ -53,6 +53,7 @@ int rmkdir(const char *pathname) {
                 }
                 if (isLastOne) {
                     rFile * p = ptr->sonFile;
+                    printf("str = %s\n",str);
                     while(p != NULL)
                     {
                         if (strcmp(p->name, str) == 0) {
@@ -62,7 +63,6 @@ int rmkdir(const char *pathname) {
                         p = p->nextFile;
                     }
                     rFile * newDir = (rFile *)malloc(sizeof(rFile));
-                    printf("str = %s\n",str);
                     strcpy(newDir->name, str);
                     newDir->nextFile = ptr->sonFile;
                     ptr->sonFile = newDir;
@@ -99,6 +99,21 @@ int rmkdir(const char *pathname) {
                 return  -1;
         }
         i++;
+    }
+    if (len != 0) {
+        rFile * p = ptr->sonFile;
+        printf("str = %s\n",str);
+        while(p != NULL) {
+            if (strcmp(p->name, str) == 0) {
+                printf("Error : the direction has existed\n");
+                return -1;
+            }
+            p = p->nextFile;
+        }
+        rFile * newDir = (rFile *)malloc(sizeof(rFile));
+        strcpy(newDir->name, str);
+        newDir->nextFile = ptr->sonFile;
+        ptr->sonFile = newDir;
     }
     return 0;
 }
