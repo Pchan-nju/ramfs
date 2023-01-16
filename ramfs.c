@@ -88,6 +88,7 @@ int rmkdir(const char *pathname) {
                             ptr = p;
                             break;
                         }
+                        p = p->nextFile;
                     }
                     if (!flag) {
                         printf("Error : there is no such path\n");
