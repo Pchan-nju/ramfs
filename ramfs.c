@@ -32,7 +32,7 @@ off_t rseek(int fd, off_t offset, int whence) {
 int rmkdir(const char *pathname) {
     static int cnt = 0;
     cnt++;
-    printf("rmkdir_%d: \n", cnt);
+    printf("rmkdir(\"%s\"): \n", pathname);
     if(pathname[0] != '/') {
         printf(("Error : the pathname is not started with '/' \n"));
         return -1;
