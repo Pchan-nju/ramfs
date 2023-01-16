@@ -30,7 +30,7 @@ off_t rseek(int fd, off_t offset, int whence) {
 }
 
 int rmkdir(const char *pathname) {
-    printf("rmkdir : \n");
+    printf("rmkdir(%s): \n",pathname);
     if (strlen(pathname) > 1024) {
         printf("Error : the pathname is too long\n");
         return -1;
@@ -45,13 +45,10 @@ int rmkdir(const char *pathname) {
 //            printf("%c",str[k]);
 //        printf("\n");
         if (pathname[i] == '/') {
-            printf("case 1\n");
             if (len != 0) {
-                printf("case 2\n");
                 int j = i + 1;
                 bool isLastOne = true;
                 while (pathname[j] != '\0') {
-                    printf("case 3\n");
                     if (pathname[j] != '/') {
                         isLastOne = false;
                         break;
@@ -59,12 +56,9 @@ int rmkdir(const char *pathname) {
                     j++;
                 }
                 if (isLastOne) {
-                    printf("case 4\n");
                     rFile * p = ptr->sonFile;
-                    printf("str = %s\n",str);
                     while(p != NULL)
                     {
-                        printf("case 5\n");
                         if (strcmp(p->name, str) == 0) {
                             printf("Error : the direction has existed\n");
                             return -1;
@@ -77,12 +71,10 @@ int rmkdir(const char *pathname) {
                     ptr->sonFile = newDir;
                 }
                 else {
-                    printf("case 6\n");
                     rFile * p = ptr->sonFile;
                     bool flag = false;
                     while (p != NULL)
                     {
-                        printf("case 7\n");
                         if (strcmp(p->name, str) == 0) {
                             flag = true;
                             ptr = p;
