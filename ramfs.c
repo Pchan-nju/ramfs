@@ -145,6 +145,8 @@ int rmkdir(const char *pathname) {
         p = p->nextFile;
     }
     printf("\n");
+
+    memset(str, '\0', sizeof(str));
     return 0;
 }
 
