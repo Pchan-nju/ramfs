@@ -432,6 +432,7 @@ int rrmdir(const char *pathname) {
         i++;
     }
     if (len != 0) {
+        str[len] = '\0';
         rFile * p = ptr->sonFile, * prep = NULL;
         while(p != NULL) {
             if (strcmp(p->name, str) == 0) {
