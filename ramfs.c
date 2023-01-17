@@ -115,6 +115,7 @@ int ropen(const char *pathname, int flags) {
         }
 
         if (flags & O_CREAT) {
+            printf("Create new file\n");
             rFile *newFile = (rFile *) malloc(sizeof(rFile));
             for (int k = 0; k <= len; k++) // strcpy
                 newFile->name[k] = str[k];
