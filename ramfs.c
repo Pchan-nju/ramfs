@@ -373,6 +373,12 @@ int rrmdir(const char *pathname) {
                                 }
                                 printf("Success.\n");
                                 return 0;
+                            } else if(p->type) {
+                                printf("Error : the directory is not clear.\n");
+                                return -1;
+                            } else {
+                                printf("Error : '%s' is not a directory.\n", str);
+                                return -1;
                             }
                         }
                         prep = p;
@@ -439,6 +445,12 @@ int rrmdir(const char *pathname) {
                     }
                     printf("Success.\n");
                     return 0;
+                } else if(p->type) {
+                    printf("Error : the directory is not clear.\n");
+                    return -1;
+                } else {
+                    printf("Error : '%s' is not a directory.\n", str);
+                    return -1;
                 }
             }
             prep = p;
