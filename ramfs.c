@@ -7,7 +7,7 @@
 typedef struct File
 {
 	char name[35];
-    bool type; // direction - true, file - false;
+    bool type; // directory - true, file - false;
 	struct File *sonFile, *nextFile;
 } rFile;
 
@@ -55,7 +55,7 @@ int ropen(const char *pathname, int flags) {
                 }
                 if (isLastOne) {
                     // TODO();
-                    // Is it legal to create a new direction?
+                    // Is it legal to create a new directory?
                     rFile * p = ptr->sonFile;
                     while(p != NULL) {
                         if (strcmp(p->name, str) == 0) {
@@ -104,7 +104,7 @@ int ropen(const char *pathname, int flags) {
                         return -1;
                     }
                     if (!ptr->type) {
-                        printf("Error : '%s' is not a direction.\n",str);
+                        printf("Error : '%s' is not a directory.\n",str);
                         return -1;
                     }
                 }
@@ -125,7 +125,7 @@ int ropen(const char *pathname, int flags) {
             len ++;
 
             if (len > 32) {
-                printf("Error : the direction name is too long.\n");
+                printf("Error : the directory name is too long.\n");
                 return -1;
             }
         }
@@ -253,7 +253,7 @@ int rmkdir(const char *pathname) {
                     while(p != NULL)
                     {
                         if (strcmp(p->name, str) == 0) {
-                            printf("Error : the direction has existed\n");
+                            printf("Error : the directory has existed\n");
                             return -1;
                         }
                         p = p->nextFile;
@@ -282,7 +282,7 @@ int rmkdir(const char *pathname) {
                         return -1;
                     }
                     if (!ptr->type) {
-                        printf("Error : '%s' is not a direction.\n", str);
+                        printf("Error : '%s' is not a directory.\n", str);
                         return -1;
                     }
                 }
@@ -303,7 +303,7 @@ int rmkdir(const char *pathname) {
             len ++;
 
             if (len > 32) {
-                printf("Error : the direction name is too long\n");
+                printf("Error : the directory name is too long\n");
                 return -1;
             }
         }
@@ -315,7 +315,7 @@ int rmkdir(const char *pathname) {
         printf("len = %d && str = %s\n",len,str);
         while(p != NULL) {
             if (strcmp(p->name, str) == 0) {
-                printf("Error : the direction has existed\n");
+                printf("Error : the directory has existed\n");
                 return -1;
             }
             p = p->nextFile;
@@ -333,7 +333,7 @@ int rmkdir(const char *pathname) {
 }
 
 int rrmdir(const char *pathname) {
-    printf("rmkdir(\"%s\"): \n", pathname);
+    printf("rrmdir(\"%s\"): \n", pathname);
     if(pathname[0] != '/') {
         printf(("Error : the pathname is not started with '/' \n"));
         return -1;
@@ -398,7 +398,7 @@ int rrmdir(const char *pathname) {
                         return -1;
                     }
                     if (!ptr->type) {
-                        printf("Error : '%s' is not a direction.\n", str);
+                        printf("Error : '%s' is not a directory.\n", str);
                         return -1;
                     }
                 }
@@ -419,7 +419,7 @@ int rrmdir(const char *pathname) {
             len ++;
 
             if (len > 32) {
-                printf("Error : the direction name is too long\n");
+                printf("Error : the directory name is too long\n");
                 return -1;
             }
         }
@@ -457,5 +457,5 @@ void init_ramfs() {
     strcpy(root->name, "root");
     root->nextFile = NULL;
     root->sonFile = NULL;
-    root->type = true; // this is a direction, and it is allowed to create file under it.
+    root->type = true; // this is a directory, and it is allowed to create file under it.
 }
