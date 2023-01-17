@@ -59,6 +59,7 @@ int ropen(const char *pathname, int flags) {
                             newFile->name[k] = str[k];
                         newFile->nextFile = ptr->sonFile;
                         ptr->sonFile = newFile;
+                        return des_cnt;
                     }
                     else {
                         printf("Error : there is no such file and it is not allowed to create.\n");
@@ -121,6 +122,7 @@ int ropen(const char *pathname, int flags) {
                 newFile->name[k] = str[k];
             newFile->nextFile = ptr->sonFile;
             ptr->sonFile = newFile;
+            return des_cnt;
         }
         else {
             printf("Error : there is no such file and it is not allowed to create.\n");
