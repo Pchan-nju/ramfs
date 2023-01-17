@@ -8,12 +8,19 @@ typedef struct File
 {
 	char name[35];
     bool type; // direction - true, file - false;
-    int right;
 	struct File *sonFile, *nextFile;
 } rFile;
 
 rFile *root;
-rFile * Descriptor[100005];
+
+typedef struct Descritptor {
+    int desIndex;
+    int flag;
+    rFile * tarFile;
+    struct Descritptor * nextDes;
+} rDescriptor;
+
+rDescriptor * desHead = NULL;
 
 int ropen(const char *pathname, int flags) {
     static int des_cnt = 1;
@@ -47,10 +54,39 @@ int ropen(const char *pathname, int flags) {
                     j++;
                 }
                 if (isLastOne) {
-                    printf("Error : file should not end with '/'.\n");
-                    return -1;
-                }
-                else {
+                    // TODO();
+                    // Is it legal to create a new direction?
+                    rFile * p = ptr->sonFile;
+                    while(p != NULL) {
+                        if (strcmp(p->name, str) == 0) {
+                            if(p->type) {
+                                rDescriptor *newDes = (rDescriptor *) malloc(sizeof(rDescriptor));
+                                newDes->desIndex = des_cnt;
+                                newDes->flag = flags;
+                                newDes->tarFile = p;
+                                if (desHead == NULL) {
+                                    desHead = newDes;
+                                    newDes->nextDes = NULL;
+                                } else {
+                                    newDes->nextDes = desHead;
+                                    desHead = newDes;
+                                }
+                                return des_cnt;
+                            } else {
+                                printf("Error : file should not end with '/'.\n");
+                                return -1;
+                            }
+                        }
+                        p = p->nextFile;
+                    }
+                    if (flags & O_CREAT) {
+                        printf("Error : file should not end with '/'.\n");
+                        return -1;
+                    } else {
+                        printf("Error : there is no such file.\n");
+                        return -1;
+                    }
+                } else {
                     rFile * p = ptr->sonFile;
                     bool flag = false;
                     while (p != NULL)
@@ -98,9 +134,19 @@ int ropen(const char *pathname, int flags) {
         rFile * p = ptr->sonFile;
         while(p != NULL) {
             if (strcmp(p->name, str) == 0) {
-                p->right = flags;
-                Descriptor[des_cnt] = p;
-                printf("Success.\n");
+//                p->right = flags;
+//                Descriptor[des_cnt] = p;
+                rDescriptor * newDes = (rDescriptor *) malloc(sizeof(rDescriptor));
+                newDes->desIndex = des_cnt;
+                newDes->flag = flags;
+                newDes->tarFile = p;
+                if(desHead == NULL) {
+                    desHead = newDes;
+                    newDes->nextDes = NULL;
+                } else {
+                    newDes->nextDes = desHead;
+                    desHead = newDes;
+                }
                 return des_cnt;
             }
             p = p->nextFile;
@@ -112,9 +158,20 @@ int ropen(const char *pathname, int flags) {
                 newFile->name[k] = str[k];
             newFile->nextFile = ptr->sonFile;
             newFile->type = false;
-            newFile->right = flags;
             ptr->sonFile = newFile;
-            Descriptor[des_cnt] = newFile;
+
+            rDescriptor * newDes = (rDescriptor *) malloc(sizeof(rDescriptor));
+            newDes->desIndex = des_cnt;
+            newDes->flag = flags;
+            newDes->tarFile = p;
+            if(desHead == NULL) {
+                desHead = newDes;
+                newDes->nextDes = NULL;
+            } else {
+                newDes->nextDes = desHead;
+                desHead = newDes;
+            }
+
             printf("Success.\n");
             return des_cnt;
         }
@@ -261,5 +318,5 @@ void init_ramfs() {
     strcpy(root->name, "root");
     root->nextFile = NULL;
     root->sonFile = NULL;
-    root->type = true; // this is a direction and it is allowed to create file under it.
+    root->type = true; // this is a direction, and it is allowed to create file under it.
 }
