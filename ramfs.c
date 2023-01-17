@@ -14,7 +14,118 @@ typedef struct File
 rFile *root;
 
 int ropen(const char *pathname, int flags) {
-    // TODO();
+    static int des_cnt = 1;
+    des_cnt++;
+
+    printf("ropen(\"%s\", %o): \n", pathname, flags);
+    if(pathname[0] != '/') {
+        printf(("Error : the pathname is not started with '/' \n"));
+        return -1;
+    }
+    if (strlen(pathname) > 1024) {
+        printf("Error : the pathname is too long\n");
+        return -1;
+    }
+
+    int i = 0;
+    char str[35];
+    int len = 0;
+    rFile * ptr = root;
+    while (pathname[i] != '\0') {
+        if (pathname[i] == '/') {
+            if (len != 0) {
+                str[len] = '\0';
+                int j = i + 1;
+                bool isLastOne = true;
+                while (pathname[j] != '\0') {
+                    if (pathname[j] != '/') {
+                        isLastOne = false;
+                        break;
+                    }
+                    j++;
+                }
+                if (isLastOne) {
+                    rFile * p = ptr->sonFile;
+                    while(p != NULL) {
+                        if (strcmp(p->name, str) == 0) {
+                            return des_cnt;
+                        }
+                        p = p->nextFile;
+                    }
+
+                    if (flags & O_CREAT) {
+                        rFile *newFile = (rFile *) malloc(sizeof(rFile));
+                        for (int k = 0; k <= len; k++) // strcpy
+                            newFile->name[k] = str[k];
+                        newFile->nextFile = ptr->sonFile;
+                        ptr->sonFile = newFile;
+                    }
+                    else {
+                        printf("Error : there is no such file and it is not allowed to create.\n");
+                        return -1;
+                    }
+                }
+                else {
+                    rFile * p = ptr->sonFile;
+                    bool flag = false;
+                    while (p != NULL)
+                    {
+                        if (strcmp(p->name, str) == 0) {
+                            flag = true;
+                            ptr = p;
+                            break;
+                        }
+                        p = p->nextFile;
+                    }
+                    if (!flag) {
+                        printf("Error : there is no such path\n");
+                        return -1;
+                    }
+                }
+                memset(str, 0, sizeof(str));
+                len = 0;
+            }
+        }
+        else {
+            if ((pathname[i] < '0' || pathname[i] > '9') &&
+                (pathname[i] < 'a' || pathname[i] > 'z') &&
+                (pathname[i] < 'A' || pathname[i] > 'Z') &&
+                pathname[i] != '.') {
+                printf("Error : pathname is illegal\n");
+                return -1;
+            }
+
+            str[len] = pathname[i];
+            len ++;
+
+            if (len > 32) {
+                printf("Error : the direction name is too long\n");
+                return -1;
+            }
+        }
+        i++;
+    }
+    if (len != 0) {
+        rFile * p = ptr->sonFile;
+        while(p != NULL) {
+            if (strcmp(p->name, str) == 0) {
+                return des_cnt;
+            }
+            p = p->nextFile;
+        }
+
+        if (flags & O_CREAT) {
+            rFile *newFile = (rFile *) malloc(sizeof(rFile));
+            for (int k = 0; k <= len; k++) // strcpy
+                newFile->name[k] = str[k];
+            newFile->nextFile = ptr->sonFile;
+            ptr->sonFile = newFile;
+        }
+        else {
+            printf("Error : there is no such file and it is not allowed to create.\n");
+            return -1;
+        }
+    }
 }
 
 int rclose(int fd) {
@@ -46,10 +157,6 @@ int rmkdir(const char *pathname) {
     int len = 0;
     rFile * ptr = root;
     while (pathname[i] != '\0') {
-//        printf("len = %d && i = %d - ", len, i);
-//        for(int k = 0; k < len; k++)
-//            printf("%c",str[k]);
-//        printf("\n");
         if (pathname[i] == '/') {
             if (len != 0) {
                 str[len] = '\0';
