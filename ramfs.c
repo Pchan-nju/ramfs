@@ -47,31 +47,33 @@ int ropen(const char *pathname, int flags) {
                     j++;
                 }
                 if (isLastOne) {
-                    rFile * p = ptr->sonFile;
-                    while(p != NULL) {
-                        if (strcmp(p->name, str) == 0) {
-                            p->right = flags;
-                            Descriptor[des_cnt] = p;
-                            return des_cnt;
-                        }
-                        p = p->nextFile;
-                    }
-
-                    if (flags & O_CREAT) {
-                        rFile *newFile = (rFile *) malloc(sizeof(rFile));
-                        for (int k = 0; k <= len; k++) // strcpy
-                            newFile->name[k] = str[k];
-                        newFile->type = false; // this is a file;
-                        newFile->nextFile = ptr->sonFile;
-                        newFile->right = flags;
-                        ptr->sonFile = newFile;
-                        Descriptor[des_cnt] = newFile;
-                        return des_cnt;
-                    }
-                    else {
-                        printf("Error : there is no such file and it is not allowed to create.\n");
-                        return -1;
-                    }
+                    printf("Error : file should not end with '/'.\n");
+                    return -1;
+//                    rFile * p = ptr->sonFile;
+//                    while(p != NULL) {
+//                        if (strcmp(p->name, str) == 0) {
+//                            p->right = flags;
+//                            Descriptor[des_cnt] = p;
+//                            return des_cnt;
+//                        }
+//                        p = p->nextFile;
+//                    }
+//
+//                    if (flags & O_CREAT) {
+//                        rFile *newFile = (rFile *) malloc(sizeof(rFile));
+//                        for (int k = 0; k <= len; k++) // strcpy
+//                            newFile->name[k] = str[k];
+//                        newFile->type = false; // this is a file;
+//                        newFile->nextFile = ptr->sonFile;
+//                        newFile->right = flags;
+//                        ptr->sonFile = newFile;
+//                        Descriptor[des_cnt] = newFile;
+//                        return des_cnt;
+//                    }
+//                    else {
+//                        printf("Error : there is no such file and it is not allowed to create.\n");
+//                        return -1;
+//                    }
                 }
                 else {
                     rFile * p = ptr->sonFile;
