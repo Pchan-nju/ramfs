@@ -23,8 +23,9 @@ int main() {
   assert(rmkdir("abcdefghijklmn") == -1);
   int fd;
   assert((fd = ropen("//dir///////1.txt", O_CREAT | O_RDWR)) >= 0);
-  assert((fd = ropen("//dir///////1.txt", O_CREAT | O_RDWR)) >= 0);
+  assert((fd = ropen("//dir///////1.txt/", O_CREAT | O_RDWR)) == -1);
   assert((fd = ropen("//dir///////1.txt/2.txt", O_CREAT | O_RDWR)) == -1);
+    assert((fd = ropen("/00000000000000000000000000000001/00000000000000000000000000000002", O_RDONLY)) >= 0);
   assert(rwrite(fd, "hello", 5) == 5);
   assert(rseek(fd, 0, SEEK_CUR) == 5);
   assert(rseek(fd, 0, SEEK_SET) == 0);

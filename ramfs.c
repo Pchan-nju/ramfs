@@ -71,6 +71,7 @@ int ropen(const char *pathname, int flags) {
                                     newDes->nextDes = desHead;
                                     desHead = newDes;
                                 }
+                                printf("Success.\n");
                                 return des_cnt;
                             } else {
                                 printf("Error : file should not end with '/'.\n");
