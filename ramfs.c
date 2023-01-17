@@ -184,6 +184,30 @@ int ropen(const char *pathname, int flags) {
 }
 
 int rclose(int fd) {
+    if(desHead == NULL) {
+        printf("Error : there is no file opened.\n");
+        return -1;
+    }
+    rDescriptor * ptr = desHead, * preptr = NULL;
+    while (ptr != NULL) {
+        if(ptr->desIndex == fd) {
+            if(ptr == desHead) {
+                desHead = ptr->nextDes;
+                free(ptr);
+                printf("Success.\n");
+                return 0;
+            } else {
+                preptr->nextDes = ptr->nextDes;
+                free(ptr);
+                printf("Success.\n");
+                return 0;
+            }
+        }
+        preptr = ptr;
+        ptr = ptr->nextDes;
+    }
+    printf("Error : such file is not opened yet.\n");
+    return -1;
 }
 
 ssize_t rwrite(int fd, const void *buf, size_t count) {
@@ -309,6 +333,120 @@ int rmkdir(const char *pathname) {
 }
 
 int rrmdir(const char *pathname) {
+    printf("rmkdir(\"%s\"): \n", pathname);
+    if(pathname[0] != '/') {
+        printf(("Error : the pathname is not started with '/' \n"));
+        return -1;
+    }
+    if (strlen(pathname) > 1024) {
+        printf("Error : the pathname is too long\n");
+        return -1;
+    }
+    int i = 0;
+    char str[35];
+    int len = 0;
+    rFile * ptr = root;
+    while (pathname[i] != '\0') {
+        if (pathname[i] == '/') {
+            if (len != 0) {
+                str[len] = '\0';
+                int j = i + 1;
+                bool isLastOne = true;
+                while (pathname[j] != '\0') {
+                    if (pathname[j] != '/') {
+                        isLastOne = false;
+                        break;
+                    }
+                    j++;
+                }
+                if (isLastOne) {
+                    rFile * p = ptr->sonFile, * prep = NULL;
+                    while(p != NULL) {
+                        if (strcmp(p->name, str) == 0) {
+                            if (p->sonFile == NULL && p->type) {
+                                if (ptr->sonFile == p) {
+                                    ptr->sonFile = p->nextFile;
+                                    free(p);
+                                } else {
+                                    prep->nextFile = p->nextFile;
+                                    free(p);
+                                }
+                                printf("Success.\n");
+                                return 0;
+                            }
+                        }
+                        prep = p;
+                        p = p->nextFile;
+                    }
+                    printf("Error : there is no such file.\n");
+                    return -1;
+                }
+                else {
+                    rFile * p = ptr->sonFile;
+                    bool flag = false;
+                    while (p != NULL)
+                    {
+                        if (strcmp(p->name, str) == 0) {
+                            flag = true;
+                            ptr = p;
+                            break;
+                        }
+                        p = p->nextFile;
+                    }
+                    if (!flag) {
+                        printf("Error : there is no such path\n");
+                        return -1;
+                    }
+                    if (!ptr->type) {
+                        printf("Error : '%s' is not a direction.\n", str);
+                        return -1;
+                    }
+                }
+                memset(str, 0, sizeof(str));
+                len = 0;
+            }
+        }
+        else {
+            if ((pathname[i] < '0' || pathname[i] > '9') &&
+                (pathname[i] < 'a' || pathname[i] > 'z') &&
+                (pathname[i] < 'A' || pathname[i] > 'Z') &&
+                pathname[i] != '.') {
+                printf("Error : pathname is illegal\n");
+                return -1;
+            }
+
+            str[len] = pathname[i];
+            len ++;
+
+            if (len > 32) {
+                printf("Error : the direction name is too long\n");
+                return -1;
+            }
+        }
+        i++;
+    }
+    if (len != 0) {
+        rFile * p = ptr->sonFile, * prep = NULL;
+        while(p != NULL) {
+            if (strcmp(p->name, str) == 0) {
+                if (p->sonFile == NULL && p->type) {
+                    if (ptr->sonFile == p) {
+                        ptr->sonFile = p->nextFile;
+                        free(p);
+                    } else {
+                        prep->nextFile = p->nextFile;
+                        free(p);
+                    }
+                    printf("Success.\n");
+                    return 0;
+                }
+            }
+            prep = p;
+            p = p->nextFile;
+        }
+        printf("Error : there is no such file.\n");
+        return -1;
+    }
 }
 
 int runlink(const char *pathname) {
