@@ -7,11 +7,13 @@
 typedef struct File
 {
 	char name[35];
-	int descriptor;
+    bool type; // direction - true, file - false;
+    int right;
 	struct File *sonFile, *nextFile;
 } rFile;
 
 rFile *root;
+rFile * Descriptor[100005];
 
 int ropen(const char *pathname, int flags) {
     static int des_cnt = 1;
@@ -48,6 +50,8 @@ int ropen(const char *pathname, int flags) {
                     rFile * p = ptr->sonFile;
                     while(p != NULL) {
                         if (strcmp(p->name, str) == 0) {
+                            p->right = flags;
+                            Descriptor[des_cnt] = p;
                             return des_cnt;
                         }
                         p = p->nextFile;
@@ -57,8 +61,11 @@ int ropen(const char *pathname, int flags) {
                         rFile *newFile = (rFile *) malloc(sizeof(rFile));
                         for (int k = 0; k <= len; k++) // strcpy
                             newFile->name[k] = str[k];
+                        newFile->type = false; // this is a file;
                         newFile->nextFile = ptr->sonFile;
+                        newFile->right = flags;
                         ptr->sonFile = newFile;
+                        Descriptor[des_cnt] = newFile;
                         return des_cnt;
                     }
                     else {
@@ -79,7 +86,11 @@ int ropen(const char *pathname, int flags) {
                         p = p->nextFile;
                     }
                     if (!flag) {
-                        printf("Error : there is no such path\n");
+                        printf("Error : there is no such path.\n");
+                        return -1;
+                    }
+                    if (!ptr->type) {
+                        printf("Error : '%s' is not a direction.\n",str);
                         return -1;
                     }
                 }
@@ -92,7 +103,7 @@ int ropen(const char *pathname, int flags) {
                 (pathname[i] < 'a' || pathname[i] > 'z') &&
                 (pathname[i] < 'A' || pathname[i] > 'Z') &&
                 pathname[i] != '.') {
-                printf("Error : pathname is illegal\n");
+                printf("Error : pathname is illegal.\n");
                 return -1;
             }
 
@@ -100,7 +111,7 @@ int ropen(const char *pathname, int flags) {
             len ++;
 
             if (len > 32) {
-                printf("Error : the direction name is too long\n");
+                printf("Error : the direction name is too long.\n");
                 return -1;
             }
         }
@@ -110,18 +121,22 @@ int ropen(const char *pathname, int flags) {
         rFile * p = ptr->sonFile;
         while(p != NULL) {
             if (strcmp(p->name, str) == 0) {
+                p->right = flags;
+                Descriptor[des_cnt] = p;
                 return des_cnt;
             }
             p = p->nextFile;
         }
 
         if (flags & O_CREAT) {
-            printf("Create new file\n");
             rFile *newFile = (rFile *) malloc(sizeof(rFile));
             for (int k = 0; k <= len; k++) // strcpy
                 newFile->name[k] = str[k];
             newFile->nextFile = ptr->sonFile;
+            newFile->type = false;
+            newFile->right = flags;
             ptr->sonFile = newFile;
+            Descriptor[des_cnt] = newFile;
             return des_cnt;
         }
         else {
@@ -183,9 +198,9 @@ int rmkdir(const char *pathname) {
                         p = p->nextFile;
                     }
                     rFile * newDir = (rFile *)malloc(sizeof(rFile));
-//                    strcpy(newDir->name, str);
-                    for(int k = 0; k <= len; k++)
+                    for(int k = 0; k <= len; k++) // strcpy(newDir->name, str);
                         newDir->name[k] = str[k];
+                    newDir->type = true;
                     newDir->nextFile = ptr->sonFile;
                     ptr->sonFile = newDir;
                 }
@@ -203,6 +218,10 @@ int rmkdir(const char *pathname) {
                     }
                     if (!flag) {
                         printf("Error : there is no such path\n");
+                        return -1;
+                    }
+                    if (!ptr->type) {
+                        printf("Error : '%s' is not a direction.\n", str);
                         return -1;
                     }
                 }
@@ -244,6 +263,7 @@ int rmkdir(const char *pathname) {
 //        strcpy(newDir->name, str);
         for(int k = 0; k <= len; k++)
             newDir->name[k] = str[k];
+        newDir->type = true;
         newDir->nextFile = ptr->sonFile;
         ptr->sonFile = newDir;
     }
@@ -262,5 +282,5 @@ void init_ramfs() {
     strcpy(root->name, "root");
     root->nextFile = NULL;
     root->sonFile = NULL;
-    root->descriptor = 1;
+    root->type = true; // this is a direction and it is allowed to create file under it.
 }
