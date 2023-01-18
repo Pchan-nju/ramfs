@@ -8,6 +8,8 @@ typedef struct File
 {
 	char name[35];
     bool type; // directory - true, file - false;
+    size_t size;
+    char * content;
 	struct File *sonFile, *nextFile;
 } rFile;
 
@@ -16,6 +18,7 @@ rFile *root;
 typedef struct Descritptor {
     int desIndex;
     int flag;
+    off_t offSize;
     rFile * tarFile;
     struct Descritptor * nextDes;
 } rDescriptor;
@@ -54,8 +57,6 @@ int ropen(const char *pathname, int flags) {
                     j++;
                 }
                 if (isLastOne) {
-                    // TODO();
-                    // Is it legal to create a new directory?
                     rFile * p = ptr->sonFile;
                     while(p != NULL) {
                         if (strcmp(p->name, str) == 0) {
@@ -122,7 +123,7 @@ int ropen(const char *pathname, int flags) {
             }
 
             str[len] = pathname[i];
-            len ++;
+            len++;
 
             if (len > 32) {
                 printf("Error : the directory name is too long.\n");
@@ -135,12 +136,22 @@ int ropen(const char *pathname, int flags) {
         rFile * p = ptr->sonFile;
         while(p != NULL) {
             if (strcmp(p->name, str) == 0) {
-//                p->right = flags;
-//                Descriptor[des_cnt] = p;
                 rDescriptor * newDes = (rDescriptor *) malloc(sizeof(rDescriptor));
                 newDes->desIndex = des_cnt;
                 newDes->flag = flags;
                 newDes->tarFile = p;
+
+                if ((flags & O_APPEND) && !p->type) {
+                    newDes->offSize = (off_t)p->size - 1;
+                }
+
+                if ((flags & O_TRUNC) && (flags & O_RDWR) && !p->type) {
+                    newDes->offSize = 0;
+                    p->content = (char *)realloc(p->content, sizeof(char));
+                    p->content[0] = '\0';
+                    p->size = 1;
+                }
+
                 if(desHead == NULL) {
                     desHead = newDes;
                     newDes->nextDes = NULL;
@@ -148,6 +159,7 @@ int ropen(const char *pathname, int flags) {
                     newDes->nextDes = desHead;
                     desHead = newDes;
                 }
+
                 return des_cnt;
             }
             p = p->nextFile;
@@ -159,13 +171,18 @@ int ropen(const char *pathname, int flags) {
                 newFile->name[k] = str[k];
             newFile->nextFile = ptr->sonFile;
             newFile->type = false;
+            newFile->sonFile = NULL;
+            newFile->content = (char *)malloc(sizeof(char));
+            newFile->content[0] = '\0';
+            newFile->size = 1;
             ptr->sonFile = newFile;
 
             rDescriptor * newDes = (rDescriptor *) malloc(sizeof(rDescriptor));
             newDes->desIndex = des_cnt;
             newDes->flag = flags;
             newDes->tarFile = p;
-            if(desHead == NULL) {
+            newDes->offSize = 0;
+            if (desHead == NULL) {
                 desHead = newDes;
                 newDes->nextDes = NULL;
             } else {
@@ -184,14 +201,14 @@ int ropen(const char *pathname, int flags) {
 }
 
 int rclose(int fd) {
-    if(desHead == NULL) {
+    if (desHead == NULL) {
         printf("Error : there is no file opened.\n");
         return -1;
     }
     rDescriptor * ptr = desHead, * preptr = NULL;
     while (ptr != NULL) {
-        if(ptr->desIndex == fd) {
-            if(ptr == desHead) {
+        if (ptr->desIndex == fd) {
+            if (ptr == desHead) {
                 desHead = ptr->nextDes;
                 free(ptr);
                 printf("Success.\n");
@@ -211,6 +228,46 @@ int rclose(int fd) {
 }
 
 ssize_t rwrite(int fd, const void *buf, size_t count) {
+    char * src = (char *) buf;
+    if (desHead == NULL) {
+        printf("Error : there is no file opened.\n");
+        return -1;
+    }
+    rDescriptor * ptr = desHead;
+    while (ptr != NULL) {
+        if (ptr->desIndex == fd) {
+            if (!(ptr->flag & O_WRONLY)) {
+                printf("Error : it is not allowed to write.\n");
+                return -1;
+            }
+            if (ptr->tarFile->type) {
+                printf("Error : '%s' is a directory.\n", ptr->tarFile->name);
+                return -1;
+            }
+
+            // expand content
+            if (ptr->offSize + count >= ptr->tarFile->size) {
+                char * tmpContent = (char *)malloc((ptr->offSize + count + 1) * sizeof(char));
+                for (int i = 0; i < ptr->tarFile->size; i++)
+                    tmpContent[i] = ptr->tarFile->content[i];
+                ptr->tarFile->size = ptr->offSize + count + 1;
+                free(ptr->tarFile->content);
+                ptr->tarFile->content = tmpContent;
+            }
+            size_t srcSize = sizeof(src);
+            for (int i = 0; i < count; i++) {
+                if (i >= srcSize)
+                    ptr->tarFile->content[ptr->offSize + i] = '\0';
+                ptr->tarFile->content[ptr->offSize + i] = src[i];
+            }
+            ptr->tarFile->content[ptr->tarFile->size - 1] = '\0';
+            ptr->offSize += (off_t)count;
+            return (ssize_t)(count > srcSize ? srcSize : count);
+        }
+        ptr = ptr->nextDes;
+    }
+    printf("Error : such file is not opened yet.\n");
+    return -1;
 }
 
 ssize_t rread(int fd, void *buf, size_t count) {
@@ -312,7 +369,6 @@ int rmkdir(const char *pathname) {
     if (len != 0) {
         rFile * p = ptr->sonFile;
         str[len] = '\0';
-        printf("len = %d && str = %s\n",len,str);
         while(p != NULL) {
             if (strcmp(p->name, str) == 0) {
                 printf("Error : the directory has existed\n");
@@ -463,6 +519,99 @@ int rrmdir(const char *pathname) {
 }
 
 int runlink(const char *pathname) {
+    printf("rrmdir(\"%s\"): \n", pathname);
+    if(pathname[0] != '/') {
+        printf(("Error : the pathname is not started with '/' \n"));
+        return -1;
+    }
+    if (strlen(pathname) > 1024) {
+        printf("Error : the pathname is too long\n");
+        return -1;
+    }
+    int i = 0;
+    char str[35];
+    int len = 0;
+    rFile * ptr = root;
+    while (pathname[i] != '\0') {
+        if (pathname[i] == '/') {
+            if (len != 0) {
+                str[len] = '\0';
+                int j = i + 1;
+                bool isLastOne = true;
+                while (pathname[j] != '\0') {
+                    if (pathname[j] != '/') {
+                        isLastOne = false;
+                        break;
+                    }
+                    j++;
+                }
+                if (isLastOne) {
+                    printf("Error : a file should not end with '/'.\n");
+                    return -1;
+                }
+                else {
+                    rFile * p = ptr->sonFile;
+                    bool flag = false;
+                    while (p != NULL)
+                    {
+                        if (strcmp(p->name, str) == 0) {
+                            flag = true;
+                            ptr = p;
+                            break;
+                        }
+                        p = p->nextFile;
+                    }
+                    if (!flag) {
+                        printf("Error : there is no such path\n");
+                        return -1;
+                    }
+                    if (!ptr->type) {
+                        printf("Error : '%s' is not a directory.\n", str);
+                        return -1;
+                    }
+                }
+                memset(str, 0, sizeof(str));
+                len = 0;
+            }
+        }
+        else {
+            if ((pathname[i] < '0' || pathname[i] > '9') &&
+                (pathname[i] < 'a' || pathname[i] > 'z') &&
+                (pathname[i] < 'A' || pathname[i] > 'Z') &&
+                pathname[i] != '.') {
+                printf("Error : pathname is illegal\n");
+                return -1;
+            }
+
+            str[len] = pathname[i];
+            len ++;
+
+            if (len > 32) {
+                printf("Error : the directory name is too long\n");
+                return -1;
+            }
+        }
+        i++;
+    }
+    if (len != 0) {
+        str[len] = '\0';
+        rFile * p = ptr->sonFile, * prep = NULL;
+        while(p != NULL) {
+            if (strcmp(p->name, str) == 0) {
+                if (!p->type) {
+                    printf("Success.\n");
+                    return 0;
+                } else {
+                    printf("Error : this is a file.\n");
+                    return -1;
+                }
+            }
+            prep = p;
+            p = p->nextFile;
+        }
+        printf("Error : there is no such file.\n");
+        return -1;
+    }
 }
 
 void init_ramfs() {
