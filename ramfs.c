@@ -243,11 +243,11 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
                 printf("Error : it is not allowed to write.\n");
                 return -1;
             }
-            printf("descriptor_%d = %d\n", ind, ptr->desIndex);
             if (ptr->tarFile->type) {
                 printf("Error : '%s' is a directory.\n", ptr->tarFile->name);
                 return -1;
             }
+            printf("descriptor_%d = %d\n", ind, ptr->desIndex);
 
             // expand content
             printf("offSize = %ld, fileSize = %zu\n",ptr->offSize, ptr->tarFile->size);
