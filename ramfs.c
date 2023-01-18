@@ -237,7 +237,7 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
     rDescriptor * ptr = desHead;
     while (ptr != NULL) {
         if (ptr->desIndex == fd) {
-            if (!(ptr->flag & O_WRONLY)) {
+            if (!(ptr->flag & O_WRONLY || ptr->flag & O_RDWR)) {
                 printf("Error : it is not allowed to write.\n");
                 return -1;
             }
