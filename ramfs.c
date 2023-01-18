@@ -239,11 +239,11 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
         static int ind = 0;
         ind++;
         if (ptr->desIndex == fd) {
-            printf("descriptor_%d = %d\n", ind, ptr->desIndex);
             if (!(ptr->flag & O_WRONLY || ptr->flag & O_RDWR)) {
                 printf("Error : it is not allowed to write.\n");
                 return -1;
             }
+            printf("descriptor_%d = %d\n", ind, ptr->desIndex);
             if (ptr->tarFile->type) {
                 printf("Error : '%s' is a directory.\n", ptr->tarFile->name);
                 return -1;
