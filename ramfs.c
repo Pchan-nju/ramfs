@@ -180,7 +180,7 @@ int ropen(const char *pathname, int flags) {
             rDescriptor * newDes = (rDescriptor *) malloc(sizeof(rDescriptor));
             newDes->desIndex = des_cnt;
             newDes->flag = flags;
-            newDes->tarFile = p;
+            newDes->tarFile = newFile;
             newDes->offSize = 0;
             if (desHead == NULL) {
                 desHead = newDes;
