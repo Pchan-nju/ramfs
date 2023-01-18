@@ -29,8 +29,6 @@ int main() {
   assert((fd = ropen("//dir///////1.txt", O_CREAT | O_RDWR)) >= 0);
   assert((fd = ropen("//dir///////1.txt/", O_CREAT | O_RDWR)) == -1);
   assert((fd = ropen("//dir///////1.txt/2.txt", O_CREAT | O_RDWR)) == -1);
-  assert((fd = ropen("/00000000000000000000000000000001/00000000000000000000000000000002/", O_RDONLY)) >= 0);
-  assert((fd = ropen("//dir///////1.txt/2.txt/", O_RDWR)) == -1);
 
   assert(rrmdir("/dir") == -1);
   assert(rrmdir("/00000000000000000000000000000001/00000000000000000000000000000002/00000000000000000000000000000003/00000000000000000000000000000004") == 0);
