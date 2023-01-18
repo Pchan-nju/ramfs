@@ -238,8 +238,8 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
     while (ptr != NULL) {
         static int ind = 0;
         ind++;
-        printf("descriptor_%d = %d\n", ind, ptr->desIndex);
         if (ptr->desIndex == fd) {
+            printf("descriptor_%d = %d\n", ind, ptr->desIndex);
             if (!(ptr->flag & O_WRONLY || ptr->flag & O_RDWR)) {
                 printf("Error : it is not allowed to write.\n");
                 return -1;
