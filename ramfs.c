@@ -229,6 +229,7 @@ int rclose(int fd) {
 
 ssize_t rwrite(int fd, const void *buf, size_t count) {
     char * src = (char *) buf;
+    printf("rwrite(%d, \"%s\", %zu):\n", fd, src, count);
     if (desHead == NULL) {
         printf("Error : there is no file opened.\n");
         return -1;
