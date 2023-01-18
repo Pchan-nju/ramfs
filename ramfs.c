@@ -247,6 +247,7 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
             }
 
             // expand content
+            printf("offSize = %ld, fileSize = %zu\n",ptr->offSize, ptr->tarFile->size);
             if (ptr->offSize + count >= ptr->tarFile->size) {
                 char * tmpContent = (char *)malloc((ptr->offSize + count + 1) * sizeof(char));
                 for (int i = 0; i < ptr->tarFile->size; i++)
@@ -263,7 +264,7 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
             }
             ptr->tarFile->content[ptr->tarFile->size - 1] = '\0';
             ptr->offSize += (off_t)count;
-            return (ssize_t)(count > srcSize ? srcSize : count);
+            return (ssize_t)count;
         }
         ptr = ptr->nextDes;
     }
