@@ -149,7 +149,7 @@ int ropen(const char *pathname, int flags) {
                     newDes->offSize = 0;
                     p->content = (char *)realloc(p->content, sizeof(char));
                     p->content[0] = '\0';
-                    p->size = 1;
+                    p->size = 0;
                 }
 
                 if(desHead == NULL) {
@@ -174,7 +174,7 @@ int ropen(const char *pathname, int flags) {
             newFile->sonFile = NULL;
             newFile->content = (char *)malloc(sizeof(char));
             newFile->content[0] = '\0';
-            newFile->size = 1;
+            newFile->size = 0;
             ptr->sonFile = newFile;
 
             rDescriptor * newDes = (rDescriptor *) malloc(sizeof(rDescriptor));
@@ -243,20 +243,20 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
                 printf("Error : it is not allowed to write.\n");
                 return -1;
             }
-            printf("target file : %s\n", ptr->tarFile->name);
+//            printf("target file : %s\n", ptr->tarFile->name);
             if (ptr->tarFile->type) {
                 printf("Error : '%s' is a directory.\n", ptr->tarFile->name);
                 return -1;
             }
 
             // expand content
-            printf("offSize = %ld, fileSize = %zu\n",ptr->offSize, ptr->tarFile->size);
+//            printf("offSize = %ld, fileSize = %zu\n",ptr->offSize, ptr->tarFile->size);
             if (ptr->offSize + count >= ptr->tarFile->size) {
                 char * tmpContent = (char *)malloc((ptr->offSize + count + 1) * sizeof(char));
                 memset(tmpContent, '\0', ptr->offSize + count + 1);
                 for (int i = 0; i < ptr->tarFile->size; i++)
                     tmpContent[i] = ptr->tarFile->content[i];
-                ptr->tarFile->size = ptr->offSize + count + 1;
+                ptr->tarFile->size = ptr->offSize + count;
                 free(ptr->tarFile->content);
                 ptr->tarFile->content = tmpContent;
             }
@@ -264,9 +264,10 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
             for (int i = 0; i < count; i++) {
                 if (i >= srcSize)
                     ptr->tarFile->content[ptr->offSize + i] = '\0';
-                ptr->tarFile->content[ptr->offSize + i] = src[i];
+                else
+                    ptr->tarFile->content[ptr->offSize + i] = src[i];
             }
-            ptr->tarFile->content[ptr->tarFile->size - 1] = '\0';
+            ptr->tarFile->content[ptr->tarFile->size] = '\0';
             ptr->offSize += (off_t)count;
             printf("Success.\n");
             return (ssize_t)count;
