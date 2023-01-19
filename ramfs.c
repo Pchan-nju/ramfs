@@ -253,6 +253,7 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
             printf("offSize = %ld, fileSize = %zu\n",ptr->offSize, ptr->tarFile->size);
             if (ptr->offSize + count >= ptr->tarFile->size) {
                 char * tmpContent = (char *)malloc((ptr->offSize + count + 1) * sizeof(char));
+                memset(tmpContent, '\0', ptr->offSize + count + 1);
                 for (int i = 0; i < ptr->tarFile->size; i++)
                     tmpContent[i] = ptr->tarFile->content[i];
                 ptr->tarFile->size = ptr->offSize + count + 1;
@@ -267,6 +268,7 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
             }
             ptr->tarFile->content[ptr->tarFile->size - 1] = '\0';
             ptr->offSize += (off_t)count;
+            printf("Success.\n");
             return (ssize_t)count;
         }
         ptr = ptr->nextDes;
@@ -279,6 +281,34 @@ ssize_t rread(int fd, void *buf, size_t count) {
 }
 
 off_t rseek(int fd, off_t offset, int whence) {
+    if (desHead == NULL) {
+        printf("Error : there is no file opened.\n");
+        return -1;
+    }
+    rDescriptor * ptr = desHead, * preptr = NULL;
+    while (ptr != NULL) {
+        if (ptr->desIndex == fd) {
+            switch (whence) {
+                case SEEK_CUR :
+                    ptr->offSize = offset;
+                    break;
+                case SEEK_SET :
+                    ptr->offSize += offset;
+                    break;
+                case SEEK_END :
+                    ptr->offSize += (off_t)ptr->tarFile->size + offset - 1;
+                    break;
+                default:
+                    break;
+            }
+            printf("Success.\n");
+            return ptr->offSize;
+        }
+        preptr = ptr;
+        ptr = ptr->nextDes;
+    }
+    printf("Error : such file is not opened yet.\n");
+    return -1;
 }
 
 int rmkdir(const char *pathname) {
