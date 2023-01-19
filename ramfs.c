@@ -201,6 +201,7 @@ int ropen(const char *pathname, int flags) {
 }
 
 int rclose(int fd) {
+    printf("rclose(%d):\n", fd);
     if (desHead == NULL) {
         printf("Error : there is no file opened.\n");
         return -1;
