@@ -299,6 +299,7 @@ ssize_t rread(int fd, void *buf, size_t count) {
                 ptr->offSize++;
             }
             printf("Succeed and return %zd.\n", cntSize);
+            printf("offSize = %ld, fileSize = %zu\n",ptr->offSize, ptr->tarFile->size);
             return cntSize;
         }
         ptr = ptr->nextDes;
@@ -330,6 +331,7 @@ off_t rseek(int fd, off_t offset, int whence) {
                     break;
             }
             printf("Succeed and return %ld.\n", ptr->offSize);
+            printf("offSize = %ld, fileSize = %zu\n",ptr->offSize, ptr->tarFile->size);
             return ptr->offSize;
         }
         preptr = ptr;
