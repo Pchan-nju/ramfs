@@ -281,6 +281,7 @@ ssize_t rread(int fd, void *buf, size_t count) {
 }
 
 off_t rseek(int fd, off_t offset, int whence) {
+    printf("rseek(%d, %ld, %d)\n", fd, offset, whence);
     if (desHead == NULL) {
         printf("Error : there is no file opened.\n");
         return -1;
