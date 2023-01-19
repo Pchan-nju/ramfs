@@ -278,6 +278,7 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
 }
 
 ssize_t rread(int fd, void *buf, size_t count) {
+    printf("rread(%d, buf, %zu):\n", fd, count);
     if (desHead == NULL) {
         printf("Error : there is no file opened.\n");
         return -1;
@@ -296,7 +297,7 @@ ssize_t rread(int fd, void *buf, size_t count) {
                 dest[i] =  ptr->tarFile->content[ptr->offSize];
                 ptr->offSize++;
             }
-            printf("Success\n");
+            printf("Succeed and return %zd.\n", cntSize);
             return cntSize;
         }
         ptr = ptr->nextDes;
