@@ -278,6 +278,31 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
 }
 
 ssize_t rread(int fd, void *buf, size_t count) {
+    if (desHead == NULL) {
+        printf("Error : there is no file opened.\n");
+        return -1;
+    }
+    char * dest = (char *)buf;
+    rDescriptor * ptr = desHead;
+    while (ptr != NULL) {
+        if (ptr->desIndex == fd) {
+            if(ptr->tarFile->type) {
+                printf("Error : '%s' is a directory\n", ptr->tarFile->name);
+                return -1;
+            }
+            ssize_t cntSize = 0;
+            for(int i = 0; i < count && ptr->offSize < ptr->tarFile->size && i < sizeof(buf); i++) {
+                cntSize++;
+                dest[i] =  ptr->tarFile->content[ptr->offSize];
+                ptr->offSize++;
+            }
+            printf("Success\n");
+            return cntSize;
+        }
+        ptr = ptr->nextDes;
+    }
+    printf("Error : such file is not opened yet.\n");
+    return -1;
 }
 
 off_t rseek(int fd, off_t offset, int whence) {
