@@ -290,10 +290,10 @@ off_t rseek(int fd, off_t offset, int whence) {
     while (ptr != NULL) {
         if (ptr->desIndex == fd) {
             switch (whence) {
-                case SEEK_CUR :
+                case SEEK_SET :
                     ptr->offSize = offset;
                     break;
-                case SEEK_SET :
+                case SEEK_CUR :
                     ptr->offSize += offset;
                     break;
                 case SEEK_END :
