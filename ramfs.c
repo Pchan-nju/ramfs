@@ -329,7 +329,7 @@ off_t rseek(int fd, off_t offset, int whence) {
                 default:
                     break;
             }
-            printf("Success.\n");
+            printf("Succeed and return %ld.\n", ptr->offSize);
             return ptr->offSize;
         }
         preptr = ptr;
