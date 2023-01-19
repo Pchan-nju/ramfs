@@ -325,7 +325,7 @@ off_t rseek(int fd, off_t offset, int whence) {
                     ptr->offSize += offset;
                     break;
                 case SEEK_END :
-                    ptr->offSize += (off_t)ptr->tarFile->size + offset;
+                    ptr->offSize = (off_t)ptr->tarFile->size + offset;
                     break;
                 default:
                     break;
