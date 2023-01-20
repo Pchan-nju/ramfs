@@ -191,6 +191,7 @@ int ropen(const char *pathname, int flags) {
             }
 
             printf("Success.\n");
+            printf("Create new file '%s'.\n", newFile->name);
             return des_cnt;
         }
         else {
