@@ -306,6 +306,7 @@ ssize_t rread(int fd, void *buf, size_t count) {
                 cntSize++;
                 *((char *)buf + i) =  *((char *)ptr->tarFile->content + ptr->offSize);
                 ptr->offSize++;
+                printf("cntSize = %zu, offSize = %ld\n", cntSize, ptr->offSize);
             }
             printf("Succeed and return %zd.\n", cntSize);
             printf("filename: \"%s\", offSize = %ld, fileSize = %zu, destSize = %lu\n",ptr->tarFile->name, ptr->offSize, ptr->tarFile->size, sizeof(buf));
