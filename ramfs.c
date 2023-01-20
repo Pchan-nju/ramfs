@@ -134,6 +134,7 @@ int ropen(const char *pathname, int flags) {
     }
     if (len != 0) {
         rFile * p = ptr->sonFile;
+        printf("str = %s\n", str);
         while(p != NULL) {
             if (strcmp(p->name, str) == 0) {
                 rDescriptor * newDes = (rDescriptor *) malloc(sizeof(rDescriptor));
@@ -197,7 +198,7 @@ int ropen(const char *pathname, int flags) {
             return des_cnt;
         }
         else {
-            printf("Error : there is no \"\" and it is not allowed to create.\n");
+            printf("Error : there is no \"%s\" and it is not allowed to create.\n", str);
             return -1;
         }
     }
