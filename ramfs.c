@@ -142,6 +142,7 @@ int ropen(const char *pathname, int flags) {
                 newDes->desIndex = des_cnt;
                 newDes->flag = flags;
                 newDes->tarFile = p;
+                newDes->offSize = 0;
 
                 if ((flags & O_APPEND) && !p->type) {
                     newDes->offSize = (off_t)p->size - 1;
