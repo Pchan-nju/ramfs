@@ -246,7 +246,7 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
         static int ind = 0;
         ind++;
         if (ptr->desIndex == fd) {
-            if ((ptr->flag & 1) == O_RDONLY) {
+            if ((ptr->flag & 1) == O_RDONLY && (ptr->flag & 3) != O_RDWR) {
                 printf("Error : it is not allowed to write.\n");
                 return -1;
             }
