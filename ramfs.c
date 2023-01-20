@@ -299,7 +299,7 @@ ssize_t rread(int fd, void *buf, size_t count) {
                 return -1;
             }
             ssize_t cntSize = 0;
-            for(int i = 0; i < count && ptr->offSize < ptr->tarFile->size && i < sizeof(buf); i++) {
+            for(int i = 0; i < count && ptr->offSize < ptr->tarFile->size; i++) {
                 cntSize++;
                 *((char *)buf + i) =  *((char *)ptr->tarFile->content + ptr->offSize);
                 ptr->offSize++;
