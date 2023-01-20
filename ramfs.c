@@ -240,7 +240,7 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
         static int ind = 0;
         ind++;
         if (ptr->desIndex == fd) {
-            if (!(ptr->flag & O_WRONLY || ptr->flag & O_RDWR)) {
+            if (!((ptr->flag & 3) == O_WRONLY || (ptr->flag & 3) == O_RDWR)) {
                 printf("Error : it is not allowed to write.\n");
                 return -1;
             }
@@ -291,6 +291,10 @@ ssize_t rread(int fd, void *buf, size_t count) {
         if (ptr->desIndex == fd) {
             if(ptr->tarFile->type) {
                 printf("Error : '%s' is a directory\n", ptr->tarFile->name);
+                return -1;
+            }
+            if((ptr->flag & 3) == O_WRONLY) {
+                printf("Error : the file is not allowed to read.\n");
                 return -1;
             }
             ssize_t cntSize = 0;
