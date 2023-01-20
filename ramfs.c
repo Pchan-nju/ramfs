@@ -167,8 +167,9 @@ int ropen(const char *pathname, int flags) {
 
         if (flags & O_CREAT) {
             rFile *newFile = (rFile *) malloc(sizeof(rFile));
-            for (int k = 0; k <= len; k++) // strcpy
+            for (int k = 0; k < len; k++) // strcpy
                 newFile->name[k] = str[k];
+            newFile->name[len] = '\0';
             newFile->nextFile = ptr->sonFile;
             newFile->type = false;
             newFile->sonFile = NULL;
