@@ -83,6 +83,7 @@ int main() {
     assert(rclose(genfd(fd, 26)) == -1);
     closeall(0);
     closeall(-1);
+    system("pause");
     openall_succ(O_RDONLY);
     readall(54, 51);
     for (int i = 0; i < 26; i++) {
