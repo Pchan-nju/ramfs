@@ -1,6 +1,8 @@
 #include "ramfs.h"
-#include <assert.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 
 int notin(int fd, int *fds, int n) {
     for (int i = 0; i < n; i++) {
@@ -8,6 +10,7 @@ int notin(int fd, int *fds, int n) {
     }
     return 1;
 }
+
 int genfd(int *fds, int n) {
     for (int i = 0; i < 4096; i++) {
         if (notin(i, fds, n))
@@ -105,4 +108,5 @@ int main() {
         assert(memcmp(buf[i], alphabet + i, 26) == 0);
     }
     closeall(0);
-    }
+}
+
