@@ -197,7 +197,7 @@ int ropen(const char *pathname, int flags) {
             return des_cnt;
         }
         else {
-            printf("Error : there is no \"%s\" and it is not allowed to create.\n", str);
+            printf("Error : there is no \"\" and it is not allowed to create.\n");
             return -1;
         }
     }
