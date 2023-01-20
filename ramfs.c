@@ -145,7 +145,7 @@ int ropen(const char *pathname, int flags) {
                 newDes->offSize = 0;
 
                 if ((flags & O_APPEND) && !p->type) {
-                    newDes->offSize = (off_t)p->size - 1;
+                    newDes->offSize = (off_t)p->size;
                 }
 
                 if ((flags & O_TRUNC) && (flags & O_RDWR) && !p->type) {
