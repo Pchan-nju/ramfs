@@ -159,7 +159,8 @@ int ropen(const char *pathname, int flags) {
                     newDes->nextDes = desHead;
                     desHead = newDes;
                 }
-
+                printf("Success.\n");
+                printf("Open file \"%s\".\n", newDes->tarFile->name);
                 return des_cnt;
             }
             p = p->nextFile;
