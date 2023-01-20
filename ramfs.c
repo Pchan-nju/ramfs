@@ -9,7 +9,7 @@ typedef struct File
 	char name[35];
     bool type; // directory - true, file - false;
     size_t size;
-    char * content;
+    void * content;
 	struct File *sonFile, *nextFile;
 } rFile;
 
@@ -147,8 +147,8 @@ int ropen(const char *pathname, int flags) {
 
                 if ((flags & O_TRUNC) && (flags & O_RDWR) && !p->type) {
                     newDes->offSize = 0;
-                    p->content = (char *)realloc(p->content, sizeof(char));
-                    p->content[0] = '\0';
+                    p->content = (void *)realloc(p->content, 1);
+                    memcpy(p->content, "\0", 1);
                     p->size = 0;
                 }
 
@@ -172,8 +172,8 @@ int ropen(const char *pathname, int flags) {
             newFile->nextFile = ptr->sonFile;
             newFile->type = false;
             newFile->sonFile = NULL;
-            newFile->content = (char *)malloc(sizeof(char));
-            newFile->content[0] = '\0';
+            newFile->content = (void *)malloc(1);
+            memcpy(newFile->content, "\0", 1);
             newFile->size = 0;
             ptr->sonFile = newFile;
 
@@ -252,10 +252,9 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
 
             // expand content
             if (ptr->offSize + count >= ptr->tarFile->size) {
-                char * tmpContent = (char *)malloc((ptr->offSize + count + 1) * sizeof(char));
+                void * tmpContent = (void *)malloc(ptr->offSize + count + 1);
                 memset(tmpContent, '\0', ptr->offSize + count + 1);
-                for (int i = 0; i < ptr->tarFile->size; i++)
-                    tmpContent[i] = ptr->tarFile->content[i];
+                memcpy(tmpContent, ptr->tarFile->content, ptr->tarFile->size);
                 ptr->tarFile->size = ptr->offSize + count;
                 free(ptr->tarFile->content);
                 ptr->tarFile->content = tmpContent;
@@ -263,11 +262,11 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
             size_t srcSize = sizeof(src);
             for (int i = 0; i < count; i++) {
                 if (i >= srcSize)
-                    ptr->tarFile->content[ptr->offSize + i] = '\0';
+                    *((char *)ptr->tarFile->content + ptr->offSize + i) = '\0';
                 else
-                    ptr->tarFile->content[ptr->offSize + i] = src[i];
+                    *((char *)ptr->tarFile->content + ptr->offSize + i) = src[i];
             }
-            ptr->tarFile->content[ptr->tarFile->size] = '\0';
+            *((char *)ptr->tarFile->content + ptr->tarFile->size) = '\0';
             ptr->offSize += (off_t)count;
             printf("offSize = %ld, fileSize = %zu\n",ptr->offSize, ptr->tarFile->size);
             printf("Success.\n");
@@ -285,7 +284,6 @@ ssize_t rread(int fd, void *buf, size_t count) {
         printf("Error : there is no file opened.\n");
         return -1;
     }
-    char * dest = (char *)buf;
     rDescriptor * ptr = desHead;
     while (ptr != NULL) {
         if (ptr->desIndex == fd) {
@@ -300,7 +298,7 @@ ssize_t rread(int fd, void *buf, size_t count) {
             ssize_t cntSize = 0;
             for(int i = 0; i < count && ptr->offSize < ptr->tarFile->size && i < sizeof(buf); i++) {
                 cntSize++;
-                dest[i] =  ptr->tarFile->content[ptr->offSize];
+                *((char *)buf + i) =  *((char *)ptr->tarFile->content + ptr->offSize);
                 ptr->offSize++;
             }
             printf("Succeed and return %zd.\n", cntSize);
