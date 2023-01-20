@@ -294,7 +294,8 @@ ssize_t rread(int fd, void *buf, size_t count) {
                 printf("Error : '%s' is a directory\n", ptr->tarFile->name);
                 return -1;
             }
-            if((ptr->flag & 3) == O_WRONLY) {
+            // O_RDWR | O_WRONLY 共同存在时，取只写的语义
+            if(ptr->flag & O_WRONLY) {
                 printf("Error : the file is not allowed to read.\n");
                 return -1;
             }
