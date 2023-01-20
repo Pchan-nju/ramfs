@@ -16,58 +16,93 @@ int genfd(int *fds, int n) {
     return -1;
 }
 
+char alphabet[53] = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz";
+int fd[26];
+char buf[26][52];
+
+void openall_succ(int flag) {
+    char name[32];
+    for (int i = 0; i < 26; i++) {
+        sprintf(name, "/thisisthe%dthfile", i);
+        assert((fd[i] = ropen(name, flag)) >= 0);
+    }
+}
+
+void openall_fail(int flag) {
+    char name[32];
+    for (int i = 0; i < 26; i++) {
+        sprintf(name, "/thisisthe%dthfile", i);
+        assert((fd[i] = ropen(name, flag)) == -1);
+    }
+}
+
+void readall(int len, int expect) {
+    for (int i = 0; i < 26; i++) {
+        assert(rread(fd[i], buf[i], len) == expect);
+    }
+}
+
+void closeall(int expect) {
+    for (int i = 0; i < 26; i++) {
+        assert(rclose(fd[i]) == expect);
+    }
+}
+
+void writeall(int off) {
+    for (int i = 0; i < 26; i++) {
+        assert(rwrite(fd[i], alphabet + ((i + off) % 26), 1) == 1);
+    }
+}
+void writeall_fail(int off) {
+    for (int i = 0; i < 26; i++) {
+        assert(rwrite(fd[i], alphabet + ((i + off) % 26), 1) == -1);
+    }
+}
+
+void seekall(int off, int whence, int expect) {
+    for (int i = 0; i < 26; i++) {
+        assert(rseek(fd[i], off, whence) == expect);
+    }
+}
+
 int main() {
     init_ramfs();
-    int fd[10];
-    int buf[10];
-    assert(ropen("/abc==d", O_CREAT) == -1);
-    assert((fd[0] = ropen("/0", O_RDONLY)) == -1);
-    assert((fd[0] = ropen("/0", O_CREAT | O_WRONLY)) >= 0);
-    assert((fd[1] = ropen("/1", O_CREAT | O_WRONLY)) >= 0);
-    assert((fd[2] = ropen("/2", O_CREAT | O_WRONLY)) >= 0);
-    assert((fd[3] = ropen("/3", O_CREAT | O_WRONLY)) >= 0);
-    assert(rread(fd[0], buf, 1) == -1);
-    assert(rread(fd[1], buf, 1) == -1);
-    assert(rread(fd[2], buf, 1) == -1);
-    assert(rread(fd[3], buf, 1) == -1);
-    for (int i = 0; i < 100; i++) {
-        assert(rwrite(fd[0], "\0\0\0\0\0", 5) == 5);
-        assert(rwrite(fd[1], "hello", 5) == 5);
-        assert(rwrite(fd[2], "world", 5) == 5);
-        assert(rwrite(fd[3], "\x001\x002\x003\x0fe\x0ff", 5) == 5);
+    openall_succ(O_CREAT | O_RDWR | O_WRONLY);  // can't read
+    readall(5, -1);
+    for (int i = 0; i < 26; i++) {
+        seekall(i, SEEK_SET, i);
+        for (int j = 0; j < 26; j++) {
+            writeall(j);
+        }
+        seekall(0, SEEK_END, 26 + i);
     }
-    assert(rclose(fd[0]) == 0);
-    assert(rclose(fd[1]) == 0);
-    assert(rclose(fd[2]) == 0);
-    assert(rclose(fd[3]) == 0);
-    assert(rclose(genfd(fd, 4)) == -1);
-    assert((fd[0] = ropen("/0", O_CREAT | O_RDONLY)) >= 0);
-    assert((fd[1] = ropen("/1", O_CREAT | O_RDONLY)) >= 0);
-    assert((fd[2] = ropen("/2", O_CREAT | O_RDONLY)) >= 0);
-    assert((fd[3] = ropen("/3", O_CREAT | O_RDONLY)) >= 0);
-    assert(rwrite(fd[0], buf, 1) == -1);
-    assert(rwrite(fd[1], buf, 1) == -1);
-    assert(rwrite(fd[2], buf, 1) == -1);
-    assert(rwrite(fd[3], buf, 1) == -1);
-    for (int i = 0; i < 50; i++) {
-        assert(rread(fd[0], buf, 10) == 10);
-        assert(memcmp(buf, "\0\0\0\0\0\0\0\0\0\0", 10) == 0);
-        assert(rread(fd[1], buf, 10) == 10);
-        assert(memcmp(buf, "hellohello", 10) == 0);
-        assert(rread(fd[2], buf, 10) == 10);
-        assert(memcmp(buf, "worldworld", 10) == 0);
-        assert(rread(fd[3], buf, 10) == 10);
-        assert(memcmp(buf, "\x001\x002\x003\x0fe\x0ff\x001\x002\x003\x0fe\x0ff", 10)
-               == 0);
+    seekall(0, SEEK_END, 51);
+    assert(rclose(genfd(fd, 26)) == -1);
+    closeall(0);
+    closeall(-1);
+    openall_succ(O_RDONLY);
+    readall(54, 51);
+    for (int i = 0; i < 26; i++) {
+        assert(memcmp(buf[i] + 25, alphabet + i, 26) == 0);
+        for (int j = 0; j < 25; j++) {
+            assert(buf[i][j] == alphabet[i]);
+        }
     }
-    assert(rread(fd[0], buf, 10) == 0);
-    assert(rread(fd[1], buf, 10) == 0);
-    assert(rread(fd[2], buf, 10) == 0);
-    assert(rread(fd[3], buf, 10) == 0);
-    assert(rclose(fd[0]) == 0);
-    assert(rclose(fd[1]) == 0);
-    assert(rclose(fd[2]) == 0);
-    assert(rclose(fd[3]) == 0);
-    return 0;
+    closeall(0);
+    for (int i = 0; i < 26; i++) {
+        openall_succ(O_APPEND | O_RDWR);
+        readall(5, 0);  // at rear
+        writeall(i);
+        closeall(0);
+    }
 
+    memset(buf, 0, sizeof(buf));
+    openall_succ(O_RDONLY);
+    seekall(0, SEEK_END, 77);
+    seekall(51, SEEK_SET, 51);
+    readall(52, 26);
+    for (int i = 0; i < 26; i++) {
+        assert(memcmp(buf[i], alphabet + i, 26) == 0);
+    }
+    closeall(0);
     }
