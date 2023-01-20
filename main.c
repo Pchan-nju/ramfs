@@ -71,6 +71,7 @@ void seekall(int off, int whence, int expect) {
 int main() {
     init_ramfs();
     openall_succ(O_CREAT | O_RDWR | O_WRONLY);  // can't read
+    system("pause");
     readall(5, -1);
     for (int i = 0; i < 26; i++) {
         seekall(i, SEEK_SET, i);
@@ -83,7 +84,6 @@ int main() {
     assert(rclose(genfd(fd, 26)) == -1);
     closeall(0);
     closeall(-1);
-    system("pause");
     openall_succ(O_RDONLY);
     readall(54, 51);
     for (int i = 0; i < 26; i++) {
