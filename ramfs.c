@@ -29,13 +29,13 @@ int ropen(const char *pathname, int flags) {
     static int des_cnt = 1;
     des_cnt++;
 
-    //printf("ropen(\"%s\", %o): \n", pathname, flags);
+    printf("ropen(\"%s\", %o): \n", pathname, flags);
     if(pathname[0] != '/') {
-        //printf(("Error : the pathname is not started with '/' \n"));
+        printf(("Error : the pathname is not started with '/' \n"));
         return -1;
     }
     if (strlen(pathname) > 1024) {
-        //printf("Error : the pathname is too long\n");
+        printf("Error : the pathname is too long\n");
         return -1;
     }
 
@@ -72,20 +72,20 @@ int ropen(const char *pathname, int flags) {
                                     newDes->nextDes = desHead;
                                     desHead = newDes;
                                 }
-                                //printf("Success.\n");
+                                printf("Success.\n");
                                 return des_cnt;
                             } else {
-                                //printf("Error : file should not end with '/'.\n");
+                                printf("Error : file should not end with '/'.\n");
                                 return -1;
                             }
                         }
                         p = p->nextFile;
                     }
                     if (flags & O_CREAT) {
-                        //printf("Error : file should not end with '/'.\n");
+                        printf("Error : file should not end with '/'.\n");
                         return -1;
                     } else {
-                        //printf("Error : there is no such file.\n");
+                        printf("Error : there is no such file.\n");
                         return -1;
                     }
                 } else {
@@ -101,11 +101,11 @@ int ropen(const char *pathname, int flags) {
                         p = p->nextFile;
                     }
                     if (!flag) {
-                        //printf("Error : there is no such path.\n");
+                        printf("Error : there is no such path.\n");
                         return -1;
                     }
                     if (!ptr->type) {
-                        //printf("Error : '%s' is not a directory.\n",str);
+                        printf("Error : '%s' is not a directory.\n",str);
                         return -1;
                     }
                 }
@@ -118,7 +118,7 @@ int ropen(const char *pathname, int flags) {
                 (pathname[i] < 'a' || pathname[i] > 'z') &&
                 (pathname[i] < 'A' || pathname[i] > 'Z') &&
                 pathname[i] != '.') {
-                //printf("Error : pathname is illegal.\n");
+                printf("Error : pathname is illegal.\n");
                 return -1;
             }
 
@@ -126,7 +126,7 @@ int ropen(const char *pathname, int flags) {
             len++;
 
             if (len > 32) {
-                //printf("Error : the directory name is too long.\n");
+                printf("Error : the directory name is too long.\n");
                 return -1;
             }
         }
@@ -190,20 +190,20 @@ int ropen(const char *pathname, int flags) {
                 desHead = newDes;
             }
 
-            //printf("Success.\n");
+            printf("Success.\n");
             return des_cnt;
         }
         else {
-            //printf("Error : there is no such file and it is not allowed to create.\n");
+            printf("Error : there is no such file and it is not allowed to create.\n");
             return -1;
         }
     }
 }
 
 int rclose(int fd) {
-    //printf("rclose(%d):\n", fd);
+    printf("rclose(%d):\n", fd);
     if (desHead == NULL) {
-        //printf("Error : there is no file opened.\n");
+        printf("Error : there is no file opened.\n");
         return -1;
     }
     rDescriptor * ptr = desHead, * preptr = NULL;
@@ -212,27 +212,27 @@ int rclose(int fd) {
             if (ptr == desHead) {
                 desHead = ptr->nextDes;
                 free(ptr);
-                //printf("Success.\n");
+                printf("Success.\n");
                 return 0;
             } else {
                 preptr->nextDes = ptr->nextDes;
                 free(ptr);
-                //printf("Success.\n");
+                printf("Success.\n");
                 return 0;
             }
         }
         preptr = ptr;
         ptr = ptr->nextDes;
     }
-    //printf("Error : such file is not opened yet.\n");
+    printf("Error : such file is not opened yet.\n");
     return -1;
 }
 
 ssize_t rwrite(int fd, const void *buf, size_t count) {
     char * src = (char *) buf;
-    //printf("rwrite(%d, \"%s\", %zu):\n", fd, src, count);
+    printf("rwrite(%d, \"%s\", %zu):\n", fd, src, count);
     if (desHead == NULL) {
-        //printf("Error : there is no file opened.\n");
+        printf("Error : there is no file opened.\n");
         return -1;
     }
     rDescriptor * ptr = desHead;
@@ -241,12 +241,12 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
         ind++;
         if (ptr->desIndex == fd) {
             if (!(ptr->flag & O_WRONLY || ptr->flag & O_RDWR)) {
-                //printf("Error : it is not allowed to write.\n");
+                printf("Error : it is not allowed to write.\n");
                 return -1;
             }
-//            //printf("target file : %s\n", ptr->tarFile->name);
+//            printf("target file : %s\n", ptr->tarFile->name);
             if (ptr->tarFile->type) {
-                //printf("Error : '%s' is a directory.\n", ptr->tarFile->name);
+                printf("Error : '%s' is a directory.\n", ptr->tarFile->name);
                 return -1;
             }
 
@@ -269,20 +269,20 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
             }
             ptr->tarFile->content[ptr->tarFile->size] = '\0';
             ptr->offSize += (off_t)count;
-            //printf("offSize = %ld, fileSize = %zu\n",ptr->offSize, ptr->tarFile->size);
-            //printf("Success.\n");
+            printf("offSize = %ld, fileSize = %zu\n",ptr->offSize, ptr->tarFile->size);
+            printf("Success.\n");
             return (ssize_t)count;
         }
         ptr = ptr->nextDes;
     }
-    //printf("Error : such file is not opened yet.\n");
+    printf("Error : such file is not opened yet.\n");
     return -1;
 }
 
 ssize_t rread(int fd, void *buf, size_t count) {
-    //printf("rread(%d, buf, %zu):\n", fd, count);
+    printf("rread(%d, buf, %zu):\n", fd, count);
     if (desHead == NULL) {
-        //printf("Error : there is no file opened.\n");
+        printf("Error : there is no file opened.\n");
         return -1;
     }
     char * dest = (char *)buf;
@@ -290,7 +290,7 @@ ssize_t rread(int fd, void *buf, size_t count) {
     while (ptr != NULL) {
         if (ptr->desIndex == fd) {
             if(ptr->tarFile->type) {
-                //printf("Error : '%s' is a directory\n", ptr->tarFile->name);
+                printf("Error : '%s' is a directory\n", ptr->tarFile->name);
                 return -1;
             }
             ssize_t cntSize = 0;
@@ -299,20 +299,20 @@ ssize_t rread(int fd, void *buf, size_t count) {
                 dest[i] =  ptr->tarFile->content[ptr->offSize];
                 ptr->offSize++;
             }
-            //printf("Succeed and return %zd.\n", cntSize);
-            //printf("offSize = %ld, fileSize = %zu\n",ptr->offSize, ptr->tarFile->size);
+            printf("Succeed and return %zd.\n", cntSize);
+            printf("offSize = %ld, fileSize = %zu\n",ptr->offSize, ptr->tarFile->size);
             return cntSize;
         }
         ptr = ptr->nextDes;
     }
-    //printf("Error : such file is not opened yet.\n");
+    printf("Error : such file is not opened yet.\n");
     return -1;
 }
 
 off_t rseek(int fd, off_t offset, int whence) {
-    //printf("rseek(%d, %ld, %d)\n", fd, offset, whence);
+    printf("rseek(%d, %ld, %d)\n", fd, offset, whence);
     if (desHead == NULL) {
-        //printf("Error : there is no file opened.\n");
+        printf("Error : there is no file opened.\n");
         return -1;
     }
     rDescriptor * ptr = desHead, * preptr = NULL;
@@ -331,27 +331,27 @@ off_t rseek(int fd, off_t offset, int whence) {
                 default:
                     break;
             }
-            //printf("Succeed and return %ld.\n", ptr->offSize);
-            //printf("offSize = %ld, fileSize = %zu\n",ptr->offSize, ptr->tarFile->size);
+            printf("Succeed and return %ld.\n", ptr->offSize);
+            printf("offSize = %ld, fileSize = %zu\n",ptr->offSize, ptr->tarFile->size);
             return ptr->offSize;
         }
         preptr = ptr;
         ptr = ptr->nextDes;
     }
-    //printf("Error : such file is not opened yet.\n");
+    printf("Error : such file is not opened yet.\n");
     return -1;
 }
 
 int rmkdir(const char *pathname) {
     static int cnt = 0;
     cnt++;
-    //printf("rmkdir(\"%s\"): \n", pathname);
+    printf("rmkdir(\"%s\"): \n", pathname);
     if(pathname[0] != '/') {
-        //printf(("Error : the pathname is not started with '/' \n"));
+        printf(("Error : the pathname is not started with '/' \n"));
         return -1;
     }
     if (strlen(pathname) > 1024) {
-        //printf("Error : the pathname is too long\n");
+        printf("Error : the pathname is too long\n");
         return -1;
     }
     int i = 0;
@@ -376,7 +376,7 @@ int rmkdir(const char *pathname) {
                     while(p != NULL)
                     {
                         if (strcmp(p->name, str) == 0) {
-                            //printf("Error : the directory has existed\n");
+                            printf("Error : the directory has existed\n");
                             return -1;
                         }
                         p = p->nextFile;
@@ -401,11 +401,11 @@ int rmkdir(const char *pathname) {
                         p = p->nextFile;
                     }
                     if (!flag) {
-                        //printf("Error : there is no such path\n");
+                        printf("Error : there is no such path\n");
                         return -1;
                     }
                     if (!ptr->type) {
-                        //printf("Error : '%s' is not a directory.\n", str);
+                        printf("Error : '%s' is not a directory.\n", str);
                         return -1;
                     }
                 }
@@ -418,7 +418,7 @@ int rmkdir(const char *pathname) {
                 (pathname[i] < 'a' || pathname[i] > 'z') &&
                 (pathname[i] < 'A' || pathname[i] > 'Z') &&
                 pathname[i] != '.') {
-                //printf("Error : pathname is illegal\n");
+                printf("Error : pathname is illegal\n");
                 return -1;
             }
 
@@ -426,7 +426,7 @@ int rmkdir(const char *pathname) {
             len ++;
 
             if (len > 32) {
-                //printf("Error : the directory name is too long\n");
+                printf("Error : the directory name is too long\n");
                 return -1;
             }
         }
@@ -437,7 +437,7 @@ int rmkdir(const char *pathname) {
         str[len] = '\0';
         while(p != NULL) {
             if (strcmp(p->name, str) == 0) {
-                //printf("Error : the directory has existed\n");
+                printf("Error : the directory has existed\n");
                 return -1;
             }
             p = p->nextFile;
@@ -450,18 +450,18 @@ int rmkdir(const char *pathname) {
         newDir->nextFile = ptr->sonFile;
         ptr->sonFile = newDir;
     }
-    //printf("Success\n");
+    printf("Success\n");
     return 0;
 }
 
 int rrmdir(const char *pathname) {
-    //printf("rrmdir(\"%s\"): \n", pathname);
+    printf("rrmdir(\"%s\"): \n", pathname);
     if(pathname[0] != '/') {
-        //printf(("Error : the pathname is not started with '/' \n"));
+        printf(("Error : the pathname is not started with '/' \n"));
         return -1;
     }
     if (strlen(pathname) > 1024) {
-        //printf("Error : the pathname is too long\n");
+        printf("Error : the pathname is too long\n");
         return -1;
     }
     int i = 0;
@@ -493,20 +493,20 @@ int rrmdir(const char *pathname) {
                                     prep->nextFile = p->nextFile;
                                     free(p);
                                 }
-                                //printf("Success.\n");
+                                printf("Success.\n");
                                 return 0;
                             } else if(p->type) {
-                                //printf("Error : the directory is not clear.\n");
+                                printf("Error : the directory is not clear.\n");
                                 return -1;
                             } else {
-                                //printf("Error : '%s' is not a directory.\n", str);
+                                printf("Error : '%s' is not a directory.\n", str);
                                 return -1;
                             }
                         }
                         prep = p;
                         p = p->nextFile;
                     }
-                    //printf("Error : there is no such file.\n");
+                    printf("Error : there is no such file.\n");
                     return -1;
                 }
                 else {
@@ -522,11 +522,11 @@ int rrmdir(const char *pathname) {
                         p = p->nextFile;
                     }
                     if (!flag) {
-                        //printf("Error : there is no such path\n");
+                        printf("Error : there is no such path\n");
                         return -1;
                     }
                     if (!ptr->type) {
-                        //printf("Error : '%s' is not a directory.\n", str);
+                        printf("Error : '%s' is not a directory.\n", str);
                         return -1;
                     }
                 }
@@ -539,7 +539,7 @@ int rrmdir(const char *pathname) {
                 (pathname[i] < 'a' || pathname[i] > 'z') &&
                 (pathname[i] < 'A' || pathname[i] > 'Z') &&
                 pathname[i] != '.') {
-                //printf("Error : pathname is illegal\n");
+                printf("Error : pathname is illegal\n");
                 return -1;
             }
 
@@ -547,7 +547,7 @@ int rrmdir(const char *pathname) {
             len ++;
 
             if (len > 32) {
-                //printf("Error : the directory name is too long\n");
+                printf("Error : the directory name is too long\n");
                 return -1;
             }
         }
@@ -566,32 +566,32 @@ int rrmdir(const char *pathname) {
                         prep->nextFile = p->nextFile;
                         free(p);
                     }
-                    //printf("Success.\n");
+                    printf("Success.\n");
                     return 0;
                 } else if(p->type) {
-                    //printf("Error : the directory is not clear.\n");
+                    printf("Error : the directory is not clear.\n");
                     return -1;
                 } else {
-                    //printf("Error : '%s' is not a directory.\n", str);
+                    printf("Error : '%s' is not a directory.\n", str);
                     return -1;
                 }
             }
             prep = p;
             p = p->nextFile;
         }
-        //printf("Error : there is no such file.\n");
+        printf("Error : there is no such file.\n");
         return -1;
     }
 }
 
 int runlink(const char *pathname) {
-    //printf("rrmdir(\"%s\"): \n", pathname);
+    printf("rrmdir(\"%s\"): \n", pathname);
     if(pathname[0] != '/') {
-        //printf(("Error : the pathname is not started with '/' \n"));
+        printf(("Error : the pathname is not started with '/' \n"));
         return -1;
     }
     if (strlen(pathname) > 1024) {
-        //printf("Error : the pathname is too long\n");
+        printf("Error : the pathname is too long\n");
         return -1;
     }
     int i = 0;
@@ -612,7 +612,7 @@ int runlink(const char *pathname) {
                     j++;
                 }
                 if (isLastOne) {
-                    //printf("Error : a file should not end with '/'.\n");
+                    printf("Error : a file should not end with '/'.\n");
                     return -1;
                 }
                 else {
@@ -628,11 +628,11 @@ int runlink(const char *pathname) {
                         p = p->nextFile;
                     }
                     if (!flag) {
-                        //printf("Error : there is no such path\n");
+                        printf("Error : there is no such path\n");
                         return -1;
                     }
                     if (!ptr->type) {
-                        //printf("Error : '%s' is not a directory.\n", str);
+                        printf("Error : '%s' is not a directory.\n", str);
                         return -1;
                     }
                 }
@@ -645,7 +645,7 @@ int runlink(const char *pathname) {
                 (pathname[i] < 'a' || pathname[i] > 'z') &&
                 (pathname[i] < 'A' || pathname[i] > 'Z') &&
                 pathname[i] != '.') {
-                //printf("Error : pathname is illegal\n");
+                printf("Error : pathname is illegal\n");
                 return -1;
             }
 
@@ -653,7 +653,7 @@ int runlink(const char *pathname) {
             len ++;
 
             if (len > 32) {
-                //printf("Error : the directory name is too long\n");
+                printf("Error : the directory name is too long\n");
                 return -1;
             }
         }
@@ -665,17 +665,17 @@ int runlink(const char *pathname) {
         while(p != NULL) {
             if (strcmp(p->name, str) == 0) {
                 if (!p->type) {
-                    //printf("Success.\n");
+                    printf("Success.\n");
                     return 0;
                 } else {
-                    //printf("Error : this is a file.\n");
+                    printf("Error : this is a file.\n");
                     return -1;
                 }
             }
             prep = p;
             p = p->nextFile;
         }
-        //printf("Error : there is no such file.\n");
+        printf("Error : there is no such file.\n");
         return -1;
     }
 }
