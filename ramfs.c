@@ -135,6 +135,7 @@ int ropen(const char *pathname, int flags) {
     if (len != 0) {
         rFile * p = ptr->sonFile;
         printf("str = %s\n", str);
+        str[len] = '\0';
         while(p != NULL) {
             if (strcmp(p->name, str) == 0) {
                 rDescriptor * newDes = (rDescriptor *) malloc(sizeof(rDescriptor));
