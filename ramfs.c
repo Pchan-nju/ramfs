@@ -321,7 +321,7 @@ off_t rseek(int fd, off_t offset, int whence) {
         //printf("Error : there is no file opened.\n");
         return -1;
     }
-    rDescriptor * ptr = desHead, * preptr = NULL;
+    rDescriptor * ptr = desHead;
     while (ptr != NULL) {
         if (ptr->desIndex == fd) {
             switch (whence) {
@@ -341,7 +341,6 @@ off_t rseek(int fd, off_t offset, int whence) {
             //printf("offSize = %ld, fileSize = %zu\n",ptr->offSize, ptr->tarFile->size);
             return ptr->offSize;
         }
-        preptr = ptr;
         ptr = ptr->nextDes;
     }
     //printf("Error : such file is not opened yet.\n");
