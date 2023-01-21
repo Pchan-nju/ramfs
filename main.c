@@ -98,6 +98,7 @@ int main() {
          "/00000000000000000000000000000001/00000000000000000000000000000002/"
          "00000000000000000000000000000003/00000000000000000000000000000004/"
          "00000000000000000000000000000005");
+    getchar();
 
 #ifndef REF
     /* more than long */
@@ -110,6 +111,7 @@ int main() {
     test(rmkdir, -1, "/0000000000000000000000000000001\x001");
     /* not started with / */
     test(rmkdir, -1, "abcdefghijklmn");
+    getchar();
 #endif
 
     /* a nice tree, haha */
@@ -137,6 +139,7 @@ int main() {
     test(rmkdir, -1, "/never/gonna/and");
     test(rmkdir, 0, "/never/gonna/hurt");
     test(rmkdir, 0, "/never/gonna/hurt/you");
+    getchar();
 
 #ifndef REF
     /* you can't escape this */
@@ -173,6 +176,7 @@ int main() {
         test(rread, -1, fd[i], buf, 0);
         test(rwrite, -1, fd[i], buf, 0);
     }
+    getchar();
 #endif
 
     /* create one file, r/w randomly */
