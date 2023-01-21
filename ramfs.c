@@ -182,6 +182,9 @@ int ropen(const char *pathname, int flags) {
 }
 
 int rclose(int fd) {
+    if(fd < 0 || fd > 1e7) {
+        return -1;
+    }
     //printf("rclose(%d):\n", fd);
     if (des[fd] == NULL) {
         //printf("Error : such file is not opened yet.\n");
@@ -194,6 +197,9 @@ int rclose(int fd) {
 }
 
 ssize_t rwrite(int fd, const void *buf, size_t count) {
+    if(fd < 0 || fd > 1e7) {
+        return -1;
+    }
     //printf("rwrite(%d, \"%s\", %zu):\n", fd, (char *)buf, count);
     if (des[fd] == NULL) {
         //printf("Error : such file is not opened yet.\n");
@@ -228,6 +234,9 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
 
 ssize_t rread(int fd, void *buf, size_t count) {
     //printf("rread(%d, buf, %zu):\n", fd, count);
+    if(fd < 0 || fd > 1e7) {
+        return -1;
+    }
     if (des[fd] == NULL) {
         //printf("Error : such file is not opened yet.\n");
         return -1;
@@ -259,6 +268,9 @@ ssize_t rread(int fd, void *buf, size_t count) {
 
 off_t rseek(int fd, off_t offset, int whence) {
     //printf("rseek(%d, %ld, %d)\n", fd, offset, whence);
+    if(fd < 0 || fd > 1e7) {
+        return -1;
+    }
     if (des[fd] == NULL) {
         //printf("Error : such file is not opened yet.\n");
         return -1;
@@ -626,4 +638,5 @@ void init_ramfs() {
     root->nextFile = NULL;
     root->sonFile = NULL;
     root->type = true; // this is a directory, and it is allowed to create file under it.
+    memset(des, 0, sizeof(des));
 }
