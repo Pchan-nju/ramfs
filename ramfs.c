@@ -266,6 +266,7 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
                 ptr->tarFile->content = tmpContent;
             }
             size_t srcSize = sizeof(src);
+            printf("srcSize = %ld\n", srcSize);
             for (int i = 0; i < count; i++) {
                 if (i >= srcSize)
                     *((char *)ptr->tarFile->content + ptr->offSize + i) = '\0';
