@@ -11,7 +11,8 @@
     if (cond)                                                                  \
       ;                                                                        \
     else {                                                                     \
-      puts("false");                                                           \
+      puts("false\n");                                                         \
+      printf("get %d\n", cond);                                                \
       exit(EXIT_SUCCESS);                                                      \
     }                                                                          \
   } while (0)
