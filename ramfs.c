@@ -591,7 +591,7 @@ int rrmdir(const char *pathname) {
 }
 
 int runlink(const char *pathname) {
-    printf("rrmdir(\"%s\"): \n", pathname);
+    printf("runlink(\"%s\"): \n", pathname);
     if(pathname[0] != '/') {
         printf(("Error : the pathname is not started with '/' \n"));
         return -1;
@@ -670,12 +670,22 @@ int runlink(const char *pathname) {
         rFile * p = ptr->sonFile, * prep = NULL;
         while(p != NULL) {
             if (strcmp(p->name, str) == 0) {
-                if (!p->type) {
-                    printf("Success.\n");
-                    return 0;
-                } else {
-                    printf("Error : this is a file.\n");
+                if (p->type) {
+                    printf("Error : this is a directory.\n");
                     return -1;
+                } else {
+                    if(ptr->sonFile == p) {
+                        ptr->sonFile = p->nextFile;
+                        free(p);
+                        printf("Success.\n");
+                        return 0;
+                    }
+                    else {
+                        prep->nextFile = p->nextFile;
+                        free(p);
+                        printf("Sucess.\n");
+                        return 0;
+                    }
                 }
             }
             prep = p;
