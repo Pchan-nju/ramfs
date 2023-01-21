@@ -165,6 +165,7 @@ int main() {
     succopen(fd[22], "/never/gonna/and", O_CREAT);
     succopen(fd[23], "/never/gonna/hurt", O_CREAT);
     succopen(fd[0 ], "/never/gonna/hurt/you", O_CREAT);
+    assert(rread(-100000000, buf, 10) == -1);
     for (int i = 0; i < 24; i++) {
         test(rread, -1, fd[i], buf, 0);
         test(rwrite, -1, fd[i], buf, 0);
