@@ -11,8 +11,7 @@
     if (cond)                                                                  \
       ;                                                                        \
     else {                                                                     \
-      puts("false\n");                                                         \
-      printf("get %d\n", cond);                                                \
+      puts("false");                                                           \
       exit(EXIT_SUCCESS);                                                      \
     }                                                                          \
   } while (0)
@@ -211,8 +210,8 @@ int main() {
         }
         test(rseek, 0, f, 0, SEEK_SET);
         test(rread, 1 MB, f, buf, 1 MB);
+        printf("yes.\n");
         assert(memcmp(buf, ref, 1 MB) == 0);
     }
-
     puts("true");
 }
