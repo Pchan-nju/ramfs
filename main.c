@@ -12,34 +12,27 @@
       ;                                                                        \
     else {                                                                     \
       puts("false");                                                           \
-      Log();                                                                   \
       exit(EXIT_SUCCESS);                                                      \
     }                                                                          \
   } while (0)
 #endif
 #define KB * 1024
 #define MB KB * 1024
-#define PGSIZE 4096
+#define PGSIZE 1 KB
 #define SCALE 1024
-#ifdef LOCAL
-#define Log() printf("in function %s, at line %d\n", __FUNCTION__, __LINE__)
-#else
-#define Log()
-#endif
 
 #define test(func, expect, ...) assert(func(__VA_ARGS__) == expect)
-
 #define succopen(var, ...) assert((var = ropen(__VA_ARGS__)) >= 0)
 #define failopen(var, ...) assert((var = ropen(__VA_ARGS__)) == -1)
 
-static void gen_random(char *pg) {
+void gen_random(char *pg) {
     int *p = (int *)pg;
-    for (int i = 0; i < 1 KB; i++) {
+    for (int i = 0; i < PGSIZE / 4; i++) {
         p[i] = rand();
     }
 }
 
-static int notin(int fd, int *fds, int n) {
+int notin(int fd, int *fds, int n) {
     for (int i = 0; i < n; i++) {
         if (fds[i] == fd)
             return 0;
@@ -47,7 +40,7 @@ static int notin(int fd, int *fds, int n) {
     return 1;
 }
 
-static int genfd(int *fds, int n) {
+int genfd(int *fds, int n) {
     for (int i = 0; i < 4096; i++) {
         if (notin(i, fds, n))
             return i;
@@ -55,9 +48,9 @@ static int genfd(int *fds, int n) {
     return -1;
 }
 
-static int fd[SCALE];
-static uint8_t buf[1 MB];
-static uint8_t ref[1 MB];
+int fd[SCALE];
+uint8_t buf[1 MB];
+uint8_t ref[1 MB];
 
 int main() {
     srand(time(NULL));
@@ -104,20 +97,6 @@ int main() {
          "/00000000000000000000000000000001/00000000000000000000000000000002/"
          "00000000000000000000000000000003/00000000000000000000000000000004/"
          "00000000000000000000000000000005");
-    test(rmkdir, 0,
-         "/00000000000000000000000000000001//00000000000000000000000000000003");
-    test(rmkdir, 0,
-         "/00000000000000000000000000000001/00000000000000000000000000000003/"
-         "00000000000000000000000000000002");
-    test(rmkdir, 0,
-         "/00000000000000000000000000000001/00000000000000000000000000000003/"
-         "00000000000000000000000000000003");
-    test(rmkdir, 0,
-         "/00000000000000000000000000000001/00000000000000000000000000000003/"
-         "00000000000000000000000000000004");
-    test(rmkdir, 0,
-         "/00000000000000000000000000000001/00000000000000000000000000000003/"
-         "00000000000000000000000000000004/00000000000000000000000000000005");
 
 #ifndef REF
     /* more than long */
@@ -160,6 +139,7 @@ int main() {
 
 #ifndef REF
     /* you can't escape this */
+    /* not the same with linux syscall_open */
     succopen(fd[1 ], "/never", O_CREAT);
     succopen(fd[2 ], "/never/gonna", O_CREAT);
     succopen(fd[3 ], "/never/gonna/give", O_CREAT);
@@ -194,32 +174,153 @@ int main() {
     }
 #endif
 
-    /* create one file, r/w randomly */
-    int f;
-    memset(ref, 0, 1 MB);
-    succopen(f, "/never/gonna/giveyouup", O_RDWR | O_CREAT);
-    /* padding */
-    test(rseek, 1 MB - 1, f, 1 MB - 1, SEEK_SET);
-    test(rwrite, 1, f, "\0", 1);
-    test(rseek, 1 MB, f, 0, SEEK_END);
-    test(rseek, 0, f, 0, SEEK_SET);   // back
-    /* check padding */
-    test(rread, 1 MB, f, buf, 1 MB);
-    assert(memcmp(buf, ref, 1 MB) == 0);
+    /* first round */
+    test(rrmdir, -1, "/never");
+    test(rrmdir, -1, "/never/gonna");
+    test(rrmdir, -1, "/never/gonna/give");
+    test(rrmdir, -1, "/never/gonna/give/you");
+    test(rrmdir, 0, "/never/gonna/give/you/up");
+    test(rrmdir, -1, "/never/gonna/let");
+    test(rrmdir, -1, "/never/gonna/let/you");
+    test(rrmdir, 0, "/never/gonna/let/you/down");
+    test(rrmdir, -1, "/never/gonna/run");
+    test(rrmdir, 0, "/never/gonna/run/around");
+    test(rrmdir, 0, "/never/gonna/and");
+    test(rrmdir, -1, "/never/gonna/desert");
+    test(rrmdir, 0, "/never/gonna/desert/you");
+    test(rrmdir, -1, "/never/gonna/make");
+    test(rrmdir, -1, "/never/gonna/make/you");
+    test(rrmdir, 0, "/never/gonna/make/you/cry");
+    test(rrmdir, -1, "/never/gonna/say");
+    test(rrmdir, 0, "/never/gonna/say/goodbye");
+    test(rrmdir, -1, "/never/gonna/tell");
+    test(rrmdir, -1, "/never/gonna/tell/a");
+    test(rrmdir, 0, "/never/gonna/tell/a/lie");
+    test(rrmdir, -1, "/never/gonna/and");
+    test(rrmdir, -1, "/never/gonna/hurt");
+    test(rrmdir, 0, "/never/gonna/hurt/you");
 
-    uint8_t page[PGSIZE];
-    for (int j = 0; j < 1024; j++) {
-        for (int i = 0; i < 512; i++) {
-            gen_random(page);
-            int pos = rand() % (1 MB - 1 KB);
-            memcpy(ref + pos, page, PGSIZE);
-            test(rseek, pos, f, pos, SEEK_SET);
-            test(rwrite, PGSIZE, f, page, PGSIZE);
-        }
-        test(rseek, 0, f, 0, SEEK_SET);
-        test(rread, 1 MB, f, buf, 1 MB);
-        assert(memcmp(buf, ref, 1 MB) == 0);
-    }
+    /* first round deleted:
+       give you up
+       let you down
+       run around
+       and
+       desert you
+    create and unlink files */
+
+    int f = 0;
+    succopen(f, "/never/gonna/give/you/up", O_CREAT | O_WRONLY);
+    /* able to read and write */
+    test(rwrite, 5, f, "hello", 5);
+    test(rclose, 0, f);
+    succopen(f, "/never/gonna/give/you/up", O_CREAT);
+    test(rread, 5, f, buf, 5);
+    assert(memcmp(buf, "hello", 5) == 0);
+    test(rclose, 0, f);
+    /* can't rmdir file */
+    test(rrmdir, -1, "/never/gonna/give/you/up");
+    /* can't rmdir non-empty dir */
+    test(rrmdir, -1, "/never/gonna/give/you");
+    test(runlink, 0, "/never/gonna/give/you/up");
+    /* can't open absent file */
+    failopen(f, "/never/gonna/give/you/up", O_RDONLY);
+
+    /* second round */
+    test(rrmdir, -1, "/never");
+    test(rrmdir, -1, "/never/gonna");
+    test(rrmdir, -1, "/never/gonna/give");
+    /* can't unlink dir */
+    test(runlink, -1, "/never/gonna/give/you");
+    test(rrmdir, 0, "/never/gonna/give/you");
+    test(rrmdir, -1, "/never/gonna/give/you/up");
+    test(rrmdir, -1, "/never/gonna/let");
+    test(rrmdir, 0, "/never/gonna/let/you");
+    test(rrmdir, -1, "/never/gonna/let/you/down");
+    test(rrmdir, 0, "/never/gonna/run");
+    test(rrmdir, -1, "/never/gonna/run/around");
+    test(rrmdir, -1, "/never/gonna/and");
+    test(rrmdir, 0, "/never/gonna/desert");
+    test(rrmdir, -1, "/never/gonna/desert/you");
+    test(rrmdir, -1, "/never/gonna/make");
+    test(rrmdir, 0, "/never/gonna/make/you");
+    test(rrmdir, -1, "/never/gonna/make/you/cry");
+    test(rrmdir, 0, "/never/gonna/say");
+    test(rrmdir, -1, "/never/gonna/say/goodbye");
+    test(rrmdir, -1, "/never/gonna/tell");
+    test(rrmdir, 0, "/never/gonna/tell/a");
+    test(rrmdir, -1, "/never/gonna/tell/a/lie");
+    test(rrmdir, -1, "/never/gonna/and");
+    test(rrmdir, 0, "/never/gonna/hurt");
+    test(rrmdir, -1, "/never/gonna/hurt/you");
+
+    /* third round */
+    test(rrmdir, -1, "/never");
+    test(rrmdir, -1, "/never/gonna");
+    test(rrmdir, 0, "/never/gonna/give");
+    test(rrmdir, -1, "/never/gonna/give/you");
+    test(rrmdir, -1, "/never/gonna/give/you/up");
+    test(rrmdir, 0, "/never/gonna/let");
+    test(rrmdir, -1, "/never/gonna/let/you");
+    test(rrmdir, -1, "/never/gonna/let/you/down");
+    test(rrmdir, -1, "/never/gonna/run");
+    test(rrmdir, -1, "/never/gonna/run/around");
+    test(rrmdir, -1, "/never/gonna/and");
+    test(rrmdir, -1, "/never/gonna/desert");
+    test(rrmdir, -1, "/never/gonna/desert/you");
+    test(rrmdir, 0, "/never/gonna/make");
+    test(rrmdir, -1, "/never/gonna/make/you");
+    test(rrmdir, -1, "/never/gonna/make/you/cry");
+    test(rrmdir, -1, "/never/gonna/say");
+    test(rrmdir, -1, "/never/gonna/say/goodbye");
+    test(rrmdir, 0, "/never/gonna/tell");
+    test(rrmdir, -1, "/never/gonna/tell/a");
+    test(rrmdir, -1, "/never/gonna/tell/a/lie");
+    test(rrmdir, -1, "/never/gonna/and");
+    test(rrmdir, -1, "/never/gonna/hurt");
+    test(rrmdir, -1, "/never/gonna/hurt/you");
+
+    /* fourth round */
+    test(rrmdir, -1, "/never");
+    test(rrmdir, 0, "/never/gonna");
+    test(rrmdir, -1, "/never/gonna/give");
+    test(rrmdir, -1, "/never/gonna/give/you");
+    test(rrmdir, -1, "/never/gonna/give/you/up");
+    test(rrmdir, -1, "/never/gonna/let");
+    test(rrmdir, -1, "/never/gonna/let/you");
+    test(rrmdir, -1, "/never/gonna/let/you/down");
+    test(rrmdir, -1, "/never/gonna/run");
+    test(rrmdir, -1, "/never/gonna/run/around");
+    test(rrmdir, -1, "/never/gonna/and");
+    test(rrmdir, -1, "/never/gonna/desert");
+    test(rrmdir, -1, "/never/gonna/desert/you");
+    test(rrmdir, -1, "/never/gonna/make");
+    test(rrmdir, -1, "/never/gonna/make/you");
+    test(rrmdir, -1, "/never/gonna/make/you/cry");
+    test(rrmdir, -1, "/never/gonna/say");
+    test(rrmdir, -1, "/never/gonna/say/goodbye");
+    test(rrmdir, -1, "/never/gonna/tell");
+    test(rrmdir, -1, "/never/gonna/tell/a");
+    test(rrmdir, -1, "/never/gonna/tell/a/lie");
+    test(rrmdir, -1, "/never/gonna/and");
+    test(rrmdir, -1, "/never/gonna/hurt");
+    test(rrmdir, -1, "/never/gonna/hurt/you");
+
+    /* fifth round */
+    test(rrmdir, 0, "/never");
+    test(rrmdir, -1, "/never/gonna");
+
+    /* sixth round */
+    test(rrmdir, -1, "/never");
+
+    /* can't have subdir in file */
+    succopen(f, "/never", O_CREAT);
+    test(rclose, 0, f);
+    test(rmkdir, -1, "/never/gonna");
+    test(rmkdir, -1, "/never/gonna/give");
+    test(rmkdir, -1, "/never/gonna/give/you");
+    test(rrmdir, -1, "/never/gonna");
+    test(rrmdir, -1, "/never/gonna/give");
+    test(rrmdir, -1, "/never/gonna/give/you");
 
     puts("true");
 }
