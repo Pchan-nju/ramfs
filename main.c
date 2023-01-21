@@ -55,6 +55,7 @@ uint8_t ref[1 MB];
 int main() {
     srand(time(NULL));
     init_ramfs();
+    assert(rread(-100000000, buf, 10) == -1);
 
     /* short */
     test(rmkdir, 0, "/a/");
