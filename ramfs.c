@@ -185,7 +185,7 @@ int rclose(int fd) {
     }
     free(des[fd]);
     des[fd] = NULL;
-    printf("Success");
+//    printf("Success");
     return 0;
 }
 
