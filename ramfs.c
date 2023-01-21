@@ -24,7 +24,6 @@ rDescriptor *des[100000005] = {NULL};
 
 int ropen(const char *pathname, int flags) {
     static int des_cnt = 1;
-    des_cnt++;
 
     //printf("ropen(\"%s\", %o): \n", pathname, flags);
     if (pathname[0] != '/') {
@@ -61,6 +60,7 @@ int ropen(const char *pathname, int flags) {
                                 rDescriptor *newDes = (rDescriptor *) malloc(sizeof(rDescriptor));
                                 newDes->flag = flags;
                                 newDes->tarFile = p;
+                                des_cnt++;
                                 des[des_cnt] = newDes;
                                 //printf("Success.\n");
                                 return des_cnt;
@@ -144,6 +144,7 @@ int ropen(const char *pathname, int flags) {
                 }
                 //printf("Success.\n");
                 //printf("Open file \"%s\".\n", newDes->tarFile->name);
+                des_cnt++;
                 des[des_cnt] = newDes;
                 return des_cnt;
             }
@@ -153,8 +154,9 @@ int ropen(const char *pathname, int flags) {
         if (flags & O_CREAT) {
             rFile *newFile = (rFile *) malloc(sizeof(rFile));
             str[len] = '\0';
-            for (int k = 0; k <= len; k++) // strcpy
-                newFile->name[k] = str[k];
+            strcpy(newFile->name, str);
+//            for (int k = 0; k <= len; k++) // strcpy
+//                newFile->name[k] = str[k];
             newFile->nextFile = ptr->sonFile;
             newFile->type = false;
             newFile->sonFile = NULL;
@@ -167,6 +169,7 @@ int ropen(const char *pathname, int flags) {
             newDes->flag = flags;
             newDes->tarFile = newFile;
             newDes->offSize = 0;
+            des_cnt++;
             des[des_cnt] = newDes;
             //printf("Success.\n");
             //printf("Create new file '%s'.\n", newFile->name);
