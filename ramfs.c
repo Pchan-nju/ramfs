@@ -20,7 +20,7 @@ typedef struct Descritptor {
     rFile *tarFile;
 } rDescriptor;
 
-rDescriptor *des[10000005] = {NULL};
+rDescriptor *des[100000005] = {NULL};
 
 int ropen(const char *pathname, int flags) {
     static int des_cnt = 1;
