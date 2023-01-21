@@ -71,6 +71,7 @@ int main() {
     test(rmkdir, 0, "/a/c/c");
     test(rmkdir, 0, "/a/c/d");
     test(rmkdir, 0, "/a/c/d/e");
+    getchar();
 
     /* long */
     test(rmkdir, 0, "/00000000000000000000000000000001/");
