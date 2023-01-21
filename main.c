@@ -71,8 +71,7 @@ int main() {
     test(rmkdir, 0, "/a/c/c");
     test(rmkdir, 0, "/a/c/d");
     test(rmkdir, 0, "/a/c/d/e");
-    printf("case 1\n");
-    getchar();
+    //printf("case 1\n");
 
     /* long */
     test(rmkdir, 0, "/00000000000000000000000000000001/");
@@ -99,8 +98,7 @@ int main() {
          "/00000000000000000000000000000001/00000000000000000000000000000002/"
          "00000000000000000000000000000003/00000000000000000000000000000004/"
          "00000000000000000000000000000005");
-    printf("case 2\n");
-    getchar();
+    //printf("case 2\n");
 
 #ifndef REF
     /* more than long */
@@ -113,8 +111,7 @@ int main() {
     test(rmkdir, -1, "/0000000000000000000000000000001\x001");
     /* not started with / */
     test(rmkdir, -1, "abcdefghijklmn");
-    printf("case 3\n");
-    getchar();
+    //printf("case 3\n");
 #endif
 
     /* a nice tree, haha */
@@ -142,8 +139,7 @@ int main() {
     test(rmkdir, -1, "/never/gonna/and");
     test(rmkdir, 0, "/never/gonna/hurt");
     test(rmkdir, 0, "/never/gonna/hurt/you");
-    printf("case 4\n");
-    getchar();
+    //printf("case 4\n");
 
 #ifndef REF
     /* you can't escape this */
@@ -180,8 +176,7 @@ int main() {
         test(rread, -1, fd[i], buf, 0);
         test(rwrite, -1, fd[i], buf, 0);
     }
-    printf("case 4\n");
-    getchar();
+    //printf("case 4\n");
 #endif
 
     /* create one file, r/w randomly */
@@ -196,8 +191,7 @@ int main() {
     /* check padding */
     test(rread, 1 MB, f, buf, 1 MB);
     assert(memcmp(buf, ref, 1 MB) == 0);
-    printf("case 5\n");
-    getchar();
+    //printf("case 5\n");
 
     uint8_t page[PGSIZE];
     for (int j = 0; j < 32; j++) {
@@ -210,7 +204,7 @@ int main() {
         }
         test(rseek, 0, f, 0, SEEK_SET);
         test(rread, 1 MB, f, buf, 1 MB);
-        printf("yes.\n");
+        //printf("yes.\n");
         assert(memcmp(buf, ref, 1 MB) == 0);
     }
     puts("true");
