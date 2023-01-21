@@ -20,7 +20,7 @@ typedef struct Descritptor {
     rFile *tarFile;
 } rDescriptor;
 
-rDescriptor *des[1000005] = {NULL};
+rDescriptor *des[10000005] = {NULL};
 
 int ropen(const char *pathname, int flags) {
     static int des_cnt = 1;
@@ -137,8 +137,9 @@ int ropen(const char *pathname, int flags) {
 
                 if ((flags & O_TRUNC) && (flags & O_RDWR) && !p->type) {
                     newDes->offSize = 0;
-                    p->content = (void *) realloc(p->content, 1);
-                    memcpy(p->content, "\0", 1);
+                    free(p->content);
+                    p->content = (void *) malloc(8);
+                    memset(p->content, 0, sizeof(p->content));
                     p->size = 0;
                 }
                 //printf("Success.\n");
@@ -157,8 +158,8 @@ int ropen(const char *pathname, int flags) {
             newFile->nextFile = ptr->sonFile;
             newFile->type = false;
             newFile->sonFile = NULL;
-            newFile->content = (void *) malloc(1);
-            memcpy(newFile->content, "\0", 1);
+            newFile->content = (void *) malloc(8);
+            memset(newFile->content, 0, sizeof(newFile->content));
             newFile->size = 0;
             ptr->sonFile = newFile;
 
@@ -244,6 +245,9 @@ ssize_t rread(int fd, void *buf, size_t count) {
         cntSize++;
         *((char *) buf + i) = *((char *) ptr->tarFile->content + ptr->offSize);
         ptr->offSize++;
+    }
+    if (count + ptr->offSize >= ptr->tarFile->size) {
+
     }
     //printf("Succeed and return %zd.\n", cntSize);
     //printf("filename: \"%s\", offSize = %ld, fileSize = %zu, destSize = %lu\n",ptr->tarFile->name, ptr->offSize, ptr->tarFile->size, sizeof(buf));
