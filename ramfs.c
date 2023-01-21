@@ -235,8 +235,7 @@ int rclose(int fd) {
 }
 
 ssize_t rwrite(int fd, const void *buf, size_t count) {
-    char * src = (char *) buf;
-    printf("rwrite(%d, \"%s\", %zu):\n", fd, src, count);
+    printf("rwrite(%d, \"%s\", %zu):\n", fd, (char *)buf, count);
     if (desHead == NULL) {
         printf("Error : there is no file opened.\n");
         return -1;
@@ -265,15 +264,11 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
                 free(ptr->tarFile->content);
                 ptr->tarFile->content = tmpContent;
             }
-            size_t srcSize = sizeof(src);
-            printf("srcSize = %ld\n", srcSize);
-            for (int i = 0; i < count; i++) {
-                if (i >= srcSize)
-                    *((char *)ptr->tarFile->content + ptr->offSize + i) = '\0';
-                else
-                    *((char *)ptr->tarFile->content + ptr->offSize + i) = src[i];
-            }
-            *((char *)ptr->tarFile->content + ptr->tarFile->size) = '\0';
+//            for (int i = 0; i < count; i++) {
+//                *((char *)ptr->tarFile->content + ptr->offSize + i) = src[i];
+//            }
+            memcpy(ptr->tarFile->content + ptr->offSize, buf, count);
+//            *((char *)ptr->tarFile->content + ptr->tarFile->size) = '\0';
             ptr->offSize += (off_t)count;
             printf("offSize = %ld, fileSize = %zu\n",ptr->offSize, ptr->tarFile->size);
             printf("Success.\n");
