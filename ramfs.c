@@ -22,7 +22,7 @@ typedef struct Descritptor {
 
 rDescriptor *des[5005] = {NULL};
 
-int ropen(const char *pathname, int flags) { // TODO() : change the way to allocate fd;
+int ropen(const char *pathname, int flags) {
     static int des_cnt = 1;
     while(des[des_cnt] != NULL) {
         des_cnt = des_cnt % 4096;
@@ -183,7 +183,7 @@ int ropen(const char *pathname, int flags) { // TODO() : change the way to alloc
 }
 
 int rclose(int fd) {
-    if(fd < 0 || fd > 1e7) {
+    if(fd < 1 || fd > 4096) {
         return -1;
     }
     //printf("rclose(%d):\n", fd);
@@ -198,7 +198,7 @@ int rclose(int fd) {
 }
 
 ssize_t rwrite(int fd, const void *buf, size_t count) {
-    if(fd < 0 || fd > 1e7) {
+    if(fd < 1 || fd > 4096) {
         return -1;
     }
     //printf("rwrite(%d, \"%s\", %zu):\n", fd, (char *)buf, count);
@@ -235,7 +235,7 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
 
 ssize_t rread(int fd, void *buf, size_t count) {
     //printf("rread(%d, buf, %zu):\n", fd, count);
-    if(fd < 0 || fd > 1e7) {
+    if(fd < 1 || fd > 4096) {
         return -1;
     }
     if (des[fd] == NULL) {
@@ -269,7 +269,7 @@ ssize_t rread(int fd, void *buf, size_t count) {
 
 off_t rseek(int fd, off_t offset, int whence) {
     //printf("rseek(%d, %ld, %d)\n", fd, offset, whence);
-    if(fd < 0 || fd > 1e7) {
+    if(fd < 1 || fd > 4096) {
         return -1;
     }
     if (des[fd] == NULL) {
