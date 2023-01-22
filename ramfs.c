@@ -259,20 +259,22 @@ ssize_t rread(int fd, void *buf, size_t count) {
         return -1;
     }
     ssize_t cntSize = 0;
-    buf = (void *)realloc(buf, (count + 1) * sizeof(*buf));
+//    buf = (void *)realloc(buf, (count + 1) * sizeof(*buf));
     //printf("cntSize = %zu, offSize = %ld\n", cntSize, ptr->offSize);
-    for (int i = 0; i < count && ptr->offSize < ptr->tarFile->size; i++) {
-        cntSize++;
-        *((char *) buf + i) = *((char *) ptr->tarFile->content + ptr->offSize);
-        ptr->offSize++;
-    }
-//    if (count + ptr->offSize >= ptr->tarFile->size) {
-//        memcpy(buf, ptr->tarFile->content + ptr->offSize, ptr->tarFile->size - ptr->offSize);
-//        ptr->offSize = (off_t)ptr->tarFile->size;
-//    } else {
-//        memcpy(buf, ptr->tarFile->content + ptr->offSize, count);
-//        ptr->offSize += (off_t)count;
+//    for (int i = 0; i < count && ptr->offSize < ptr->tarFile->size; i++) {
+//        cntSize++;
+//        *((char *) buf + i) = *((char *) ptr->tarFile->content + ptr->offSize);
+//        ptr->offSize++;
 //    }
+    if (count + ptr->offSize >= ptr->tarFile->size) {
+        cntSize = (ssize_t)ptr->tarFile->size - ptr->offSize;
+        memcpy(buf, ptr->tarFile->content + ptr->offSize, cntSize);
+        ptr->offSize = (off_t)ptr->tarFile->size;
+    } else {
+        cntSize = (ssize_t)count;
+        memcpy(buf, ptr->tarFile->content + ptr->offSize, count);
+        ptr->offSize += (off_t)count;
+    }
     //printf("Succeed and return %zd.\n", cntSize);
     //printf("filename: \"%s\", offSize = %ld, fileSize = %zu, destSize = %lu\n",ptr->tarFile->name, ptr->offSize, ptr->tarFile->size, sizeof(buf));
     return cntSize;
