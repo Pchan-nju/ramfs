@@ -20,10 +20,14 @@ typedef struct Descritptor {
     rFile *tarFile;
 } rDescriptor;
 
-rDescriptor *des[10000005] = {NULL};
+rDescriptor *des[5005] = {NULL};
 
-int ropen(const char *pathname, int flags) {
+int ropen(const char *pathname, int flags) { // TODO() : change the way to allocate fd;
     static int des_cnt = 1;
+    while(des[des_cnt] != NULL) {
+        des_cnt = des_cnt % 4096;
+        des_cnt++;
+    }
 
     //printf("ropen(\"%s\", %o): \n", pathname, flags);
     if (pathname[0] != '/') {
@@ -60,7 +64,6 @@ int ropen(const char *pathname, int flags) {
                                 rDescriptor *newDes = (rDescriptor *) malloc(sizeof(rDescriptor));
                                 newDes->flag = flags;
                                 newDes->tarFile = p;
-                                des_cnt++;
                                 des[des_cnt] = newDes;
                                 //printf("Success.\n");
                                 return des_cnt;
@@ -144,7 +147,6 @@ int ropen(const char *pathname, int flags) {
                 }
                 //printf("Success.\n");
                 //printf("Open file \"%s\".\n", newDes->tarFile->name);
-                des_cnt++;
                 des[des_cnt] = newDes;
                 return des_cnt;
             }
@@ -169,7 +171,6 @@ int ropen(const char *pathname, int flags) {
             newDes->flag = flags;
             newDes->tarFile = newFile;
             newDes->offSize = 0;
-            des_cnt++;
             des[des_cnt] = newDes;
             //printf("Success.\n");
             //printf("Create new file '%s'.\n", newFile->name);
