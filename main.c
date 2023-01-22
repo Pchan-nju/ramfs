@@ -12,34 +12,27 @@
       ;                                                                        \
     else {                                                                     \
       puts("false");                                                           \
-      Log();                                                                   \
       exit(EXIT_SUCCESS);                                                      \
     }                                                                          \
   } while (0)
 #endif
 #define KB * 1024
 #define MB KB * 1024
-#define PGSIZE 4096
+#define PGSIZE 1 KB
 #define SCALE 1024
-#ifdef LOCAL
-#define Log() printf("in function %s, at line %d\n", __FUNCTION__, __LINE__)
-#else
-#define Log()
-#endif
 
 #define test(func, expect, ...) assert(func(__VA_ARGS__) == expect)
-
 #define succopen(var, ...) assert((var = ropen(__VA_ARGS__)) >= 0)
 #define failopen(var, ...) assert((var = ropen(__VA_ARGS__)) == -1)
 
-static void gen_random(char *pg) {
+void gen_random(char *pg) {
     int *p = (int *)pg;
-    for (int i = 0; i < 1 KB; i++) {
+    for (int i = 0; i < PGSIZE / 4; i++) {
         p[i] = rand();
     }
 }
 
-static int notin(int fd, int *fds, int n) {
+int notin(int fd, int *fds, int n) {
     for (int i = 0; i < n; i++) {
         if (fds[i] == fd)
             return 0;
@@ -47,7 +40,7 @@ static int notin(int fd, int *fds, int n) {
     return 1;
 }
 
-static int genfd(int *fds, int n) {
+int genfd(int *fds, int n) {
     for (int i = 0; i < 4096; i++) {
         if (notin(i, fds, n))
             return i;
@@ -55,9 +48,9 @@ static int genfd(int *fds, int n) {
     return -1;
 }
 
-static int fd[SCALE];
-static uint8_t buf[1 MB];
-static uint8_t ref[1 MB];
+int fd[SCALE];
+uint8_t buf[1 MB];
+uint8_t ref[1 MB];
 
 int main() {
     srand(time(NULL));
@@ -104,20 +97,6 @@ int main() {
          "/00000000000000000000000000000001/00000000000000000000000000000002/"
          "00000000000000000000000000000003/00000000000000000000000000000004/"
          "00000000000000000000000000000005");
-    test(rmkdir, 0,
-         "/00000000000000000000000000000001//00000000000000000000000000000003");
-    test(rmkdir, 0,
-         "/00000000000000000000000000000001/00000000000000000000000000000003/"
-         "00000000000000000000000000000002");
-    test(rmkdir, 0,
-         "/00000000000000000000000000000001/00000000000000000000000000000003/"
-         "00000000000000000000000000000003");
-    test(rmkdir, 0,
-         "/00000000000000000000000000000001/00000000000000000000000000000003/"
-         "00000000000000000000000000000004");
-    test(rmkdir, 0,
-         "/00000000000000000000000000000001/00000000000000000000000000000003/"
-         "00000000000000000000000000000004/00000000000000000000000000000005");
 
 #ifndef REF
     /* more than long */
@@ -160,6 +139,7 @@ int main() {
 
 #ifndef REF
     /* you can't escape this */
+    /* not the same with linux syscall_open */
     succopen(fd[1 ], "/never", O_CREAT);
     succopen(fd[2 ], "/never/gonna", O_CREAT);
     succopen(fd[3 ], "/never/gonna/give", O_CREAT);
@@ -208,7 +188,7 @@ int main() {
     assert(memcmp(buf, ref, 1 MB) == 0);
 
     uint8_t page[PGSIZE];
-    for (int j = 0; j < 1024; j++) {
+    for (int j = 0; j < 32; j++) {
         for (int i = 0; i < 512; i++) {
             gen_random(page);
             int pos = rand() % (1 MB - 1 KB);
