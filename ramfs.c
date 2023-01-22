@@ -259,7 +259,7 @@ ssize_t rread(int fd, void *buf, size_t count) {
         return -1;
     }
     ssize_t cntSize = 0;
-    buf = realloc(buf, (count + 1) * sizeof(*buf));
+    buf = (void *)realloc(buf, (count + 1) * sizeof(*buf));
     //printf("cntSize = %zu, offSize = %ld\n", cntSize, ptr->offSize);
     for (int i = 0; i < count && ptr->offSize < ptr->tarFile->size; i++) {
         cntSize++;
