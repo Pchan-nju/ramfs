@@ -24,7 +24,7 @@ rDescriptor *des[5005] = {NULL};
 
 int ropen(const char *pathname, int flags) {
     static int des_cnt = 1;
-    while(des[des_cnt] != NULL) {
+    while (des[des_cnt] != NULL) {
         des_cnt = des_cnt % 4096;
         des_cnt++;
     }
@@ -49,7 +49,7 @@ int ropen(const char *pathname, int flags) {
                 str[len] = '\0';
                 int j = i + 1;
                 bool isLastOne = true;
-                while (pathname[j] != '\0') {
+                while (pathname[j] != '\0' && j < strlen(pathname)) {
                     if (pathname[j] != '/') {
                         isLastOne = false;
                         break;
@@ -183,7 +183,7 @@ int ropen(const char *pathname, int flags) {
 }
 
 int rclose(int fd) {
-    if(fd < 1 || fd > 4096) {
+    if (fd < 1 || fd > 4096) {
         return -1;
     }
     //printf("rclose(%d):\n", fd);
@@ -198,7 +198,7 @@ int rclose(int fd) {
 }
 
 ssize_t rwrite(int fd, const void *buf, size_t count) {
-    if(fd < 1 || fd > 4096) {
+    if (fd < 1 || fd > 4096) {
         return -1;
     }
     //printf("rwrite(%d, \"%s\", %zu):\n", fd, (char *)buf, count);
@@ -216,10 +216,13 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
         //printf("Error : '%s' is a directory.\n", ptr->tarFile->name);
         return -1;
     }
+    if(ptr->offSize < 0) {
+        return -1;
+    }
 
     // expand content
     if (ptr->offSize + count >= ptr->tarFile->size) {
-        void *tmpContent = (void *) malloc(ptr->offSize + count + 1);
+        void *tmpContent = (void *) malloc((ptr->offSize + count + 5) * sizeof(*tmpContent));
         memset(tmpContent, '\0', ptr->offSize + count + 1);
         memcpy(tmpContent, ptr->tarFile->content, ptr->tarFile->size);
         ptr->tarFile->size = ptr->offSize + count;
@@ -235,7 +238,7 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
 
 ssize_t rread(int fd, void *buf, size_t count) {
     //printf("rread(%d, buf, %zu):\n", fd, count);
-    if(fd < 1 || fd > 4096) {
+    if (fd < 1 || fd > 4096) {
         return -1;
     }
     if (des[fd] == NULL) {
@@ -243,6 +246,9 @@ ssize_t rread(int fd, void *buf, size_t count) {
         return -1;
     }
     rDescriptor *ptr = des[fd];
+    if(ptr->offSize < 0) {
+        return -1;
+    }
     if (ptr->tarFile->type) {
         //printf("Error : '%s' is a directory\n", ptr->tarFile->name);
         return -1;
@@ -254,13 +260,17 @@ ssize_t rread(int fd, void *buf, size_t count) {
     }
     ssize_t cntSize = 0;
     //printf("cntSize = %zu, offSize = %ld\n", cntSize, ptr->offSize);
-    for (int i = 0; i < count && ptr->offSize < ptr->tarFile->size; i++) {
-        cntSize++;
-        *((char *) buf + i) = *((char *) ptr->tarFile->content + ptr->offSize);
-        ptr->offSize++;
-    }
+//    for (int i = 0; i < count && ptr->offSize < ptr->tarFile->size; i++) {
+//        cntSize++;
+//        *((char *) buf + i) = *((char *) ptr->tarFile->content + ptr->offSize);
+//        ptr->offSize++;
+//    }
     if (count + ptr->offSize >= ptr->tarFile->size) {
-
+        memcpy(buf, ptr->tarFile->content + ptr->offSize, ptr->tarFile->size - ptr->offSize);
+        ptr->offSize = (off_t)ptr->tarFile->size;
+    } else {
+        memcpy(buf, ptr->tarFile->content + ptr->offSize, count);
+        ptr->offSize += (off_t)count;
     }
     //printf("Succeed and return %zd.\n", cntSize);
     //printf("filename: \"%s\", offSize = %ld, fileSize = %zu, destSize = %lu\n",ptr->tarFile->name, ptr->offSize, ptr->tarFile->size, sizeof(buf));
@@ -269,11 +279,14 @@ ssize_t rread(int fd, void *buf, size_t count) {
 
 off_t rseek(int fd, off_t offset, int whence) {
     //printf("rseek(%d, %ld, %d)\n", fd, offset, whence);
-    if(fd < 1 || fd > 4096) {
+    if (fd < 1 || fd > 4096) {
         return -1;
     }
     if (des[fd] == NULL) {
         //printf("Error : such file is not opened yet.\n");
+        return -1;
+    }
+    if (des[fd]->tarFile->type) {
         return -1;
     }
     rDescriptor *ptr = des[fd];
