@@ -359,6 +359,8 @@ int rmkdir(const char *pathname) {
                     newDir->content = NULL;
                     newDir->size = -1;
                     ptr->sonFile = newDir;
+                    printf("Success.\n");
+                    return 0;
                 } else {
                     rFile *p = ptr->sonFile;
                     bool flag = false;
@@ -419,8 +421,9 @@ int rmkdir(const char *pathname) {
         newDir->size = -1;
         newDir->nextFile = ptr->sonFile;
         ptr->sonFile = newDir;
+        printf("Success\n");
+        return 0;
     }
-    printf("Success\n");
     return -1;
 }
 
@@ -539,7 +542,6 @@ int rrmdir(const char *pathname) {
         printf("Error : there is no such file.\n");
         return -1;
     }
-    return -1;
 }
 
 int runlink(const char *pathname) {
