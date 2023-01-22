@@ -155,8 +155,8 @@ int ropen(const char *pathname, int flags) {
 
         if (flags & O_CREAT) {
             rFile *newFile = (rFile *) malloc(sizeof(rFile));
-            newFile->name = (char *) malloc((len + 1) * sizeof(char));
             str[len] = '\0';
+            newFile->name = (char *) malloc((len + 1) * sizeof(char));
             strcpy(newFile->name, str);
 //            for (int k = 0; k <= len; k++) // strcpy
 //                newFile->name[k] = str[k];
@@ -408,7 +408,6 @@ int rmkdir(const char *pathname) {
             p = p->nextFile;
         }
         rFile *newDir = (rFile *) malloc(sizeof(rFile));
-        str[len] = '\0';
         newDir->name = (char *)malloc((len + 1) * sizeof(char));
         strcpy(newDir->name, str);
         newDir->type = true;
@@ -455,9 +454,11 @@ int rrmdir(const char *pathname) {
                             if (p->sonFile == NULL && p->type) {
                                 if (ptr->sonFile == p) {
                                     ptr->sonFile = p->nextFile;
+                                    free(p->name);
                                     free(p);
                                 } else {
                                     prep->nextFile = p->nextFile;
+                                    free(p->name);
                                     free(p);
                                 }
                                 //printf("Success.\n");
@@ -632,12 +633,14 @@ int runlink(const char *pathname) {
                     if (ptr->sonFile == p) {
                         ptr->sonFile = p->nextFile;
                         free(p->content);
+                        free(p->name);
                         free(p);
                         //printf("Success.\n");
                         return 0;
                     } else {
                         prep->nextFile = p->nextFile;
                         free(p->content);
+                        free(p->name);
                         free(p);
                         //printf("Sucess.\n");
                         return 0;
