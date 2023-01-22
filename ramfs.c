@@ -20,7 +20,7 @@ typedef struct Descritptor {
     rFile *tarFile;
 } rDescriptor;
 
-rDescriptor *des[5005] = {NULL};
+rDescriptor *des[4100] = {NULL};
 
 int ropen(const char *pathname, int flags) {
     static int des_cnt = 1;
@@ -530,9 +530,11 @@ int rrmdir(const char *pathname) {
                 if (p->sonFile == NULL && p->type) {
                     if (ptr->sonFile == p) {
                         ptr->sonFile = p->nextFile;
+                        free(p->name);
                         free(p);
                     } else {
                         prep->nextFile = p->nextFile;
+                        free(p->name);
                         free(p);
                     }
                     //printf("Success.\n");
