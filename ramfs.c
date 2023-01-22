@@ -74,13 +74,14 @@ int ropen(const char *pathname, int flags) {
                         }
                         p = p->nextFile;
                     }
-                    if (flags & O_CREAT) {
-                        //printf("Error : file should not end with '/'.\n");
-                        return -1;
-                    } else {
-                        //printf("Error : there is no such file.\n");
-                        return -1;
-                    }
+                    return -1;
+//                    if (flags & O_CREAT) {
+//                        //printf("Error : file should not end with '/'.\n");
+//                        return -1;
+//                    } else {
+//                        //printf("Error : there is no such file.\n");
+//                        return -1;
+//                    }
                 } else {
                     rFile *p = ptr->sonFile;
                     bool flag = false;
@@ -181,6 +182,12 @@ int ropen(const char *pathname, int flags) {
             return -1;
         }
     }
+    rDescriptor * newDes = (rDescriptor *) malloc(sizeof(rDescriptor));
+    newDes->offSize = 0;
+    newDes->tarFile = root;
+    newDes->flag = flags;
+    des[des_cnt] = newDes;
+    return des_cnt;
 }
 
 int rclose(int fd) {
@@ -259,7 +266,7 @@ ssize_t rread(int fd, void *buf, size_t count) {
         //printf("Error : the file is not allowed to read.\n");
         return -1;
     }
-    ssize_t cntSize = 0;
+    ssize_t cntSize;
     if (count + ptr->offSize >= ptr->tarFile->size) {
         cntSize = (ssize_t)ptr->tarFile->size - ptr->offSize;
         memcpy(buf, ptr->tarFile->content + ptr->offSize, cntSize);
@@ -303,12 +310,9 @@ off_t rseek(int fd, off_t offset, int whence) {
     //printf("Succeed and return %ld.\n", ptr->offSize);
     //printf("offSize = %ld, fileSize = %zu\n",ptr->offSize, ptr->tarFile->size);
     return ptr->offSize;
-    return -1;
 }
 
 int rmkdir(const char *pathname) {
-    static int cnt = 0;
-    cnt++;
     //printf("rmkdir(\"%s\"): \n", pathname);
     if (pathname[0] != '/') {
         //printf(("Error : the pathname is not started with '/' \n"));
@@ -417,7 +421,7 @@ int rmkdir(const char *pathname) {
         ptr->sonFile = newDir;
     }
     //printf("Success\n");
-    return 0;
+    return -1;
 }
 
 int rrmdir(const char *pathname) {
@@ -463,13 +467,7 @@ int rrmdir(const char *pathname) {
                                 }
                                 //printf("Success.\n");
                                 return 0;
-                            } else if (p->type) {
-                                //printf("Error : the directory is not clear.\n");
-                                return -1;
-                            } else {
-                                //printf("Error : '%s' is not a directory.\n", str);
-                                return -1;
-                            }
+                            } else return -1;
                         }
                         prep = p;
                         p = p->nextFile;
@@ -533,13 +531,7 @@ int rrmdir(const char *pathname) {
                     }
                     //printf("Success.\n");
                     return 0;
-                } else if (p->type) {
-                    //printf("Error : the directory is not clear.\n");
-                    return -1;
-                } else {
-                    //printf("Error : '%s' is not a directory.\n", str);
-                    return -1;
-                }
+                } else return -1;
             }
             prep = p;
             p = p->nextFile;
@@ -547,6 +539,7 @@ int rrmdir(const char *pathname) {
         //printf("Error : there is no such file.\n");
         return -1;
     }
+    return -1;
 }
 
 int runlink(const char *pathname) {
@@ -653,6 +646,7 @@ int runlink(const char *pathname) {
         //printf("Error : there is no such file.\n");
         return -1;
     }
+    return -1;
 }
 
 void init_ramfs() {
