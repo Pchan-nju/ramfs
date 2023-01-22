@@ -222,7 +222,7 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
 
     // expand content
     if (ptr->offSize + count >= ptr->tarFile->size) {
-        void *tmpContent = (void *) malloc((ptr->offSize + count + 5) * sizeof(*tmpContent));
+        void *tmpContent = (void *) malloc(ptr->offSize + count + 1);
         memset(tmpContent, '\0', ptr->offSize + count + 1);
         memcpy(tmpContent, ptr->tarFile->content, ptr->tarFile->size);
         ptr->tarFile->size = ptr->offSize + count;
