@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 typedef struct File {
-    char * name;
+    char *name;
     bool type; // directory - true, file - false;
     size_t size;
     void *content;
@@ -182,7 +182,7 @@ int ropen(const char *pathname, int flags) {
             return -1;
         }
     }
-    rDescriptor * newDes = (rDescriptor *) malloc(sizeof(rDescriptor));
+    rDescriptor *newDes = (rDescriptor *) malloc(sizeof(rDescriptor));
     newDes->offSize = 0;
     newDes->tarFile = root;
     newDes->flag = flags;
@@ -201,7 +201,7 @@ int rclose(int fd) {
     }
     free(des[fd]);
     des[fd] = NULL;
-//    //printf("Success");
+    //printf("Success");
     return 0;
 }
 
@@ -224,7 +224,7 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
         //printf("Error : '%s' is a directory.\n", ptr->tarFile->name);
         return -1;
     }
-    if(ptr->offSize < 0) {
+    if (ptr->offSize < 0) {
         return -1;
     }
 
@@ -254,7 +254,7 @@ ssize_t rread(int fd, void *buf, size_t count) {
         return -1;
     }
     rDescriptor *ptr = des[fd];
-    if(ptr->offSize < 0) {
+    if (ptr->offSize < 0) {
         return -1;
     }
     if (ptr->tarFile->type) {
@@ -268,13 +268,13 @@ ssize_t rread(int fd, void *buf, size_t count) {
     }
     ssize_t cntSize;
     if (count + ptr->offSize >= ptr->tarFile->size) {
-        cntSize = (ssize_t)ptr->tarFile->size - ptr->offSize;
+        cntSize = (ssize_t) ptr->tarFile->size - ptr->offSize;
         memcpy(buf, ptr->tarFile->content + ptr->offSize, cntSize);
-        ptr->offSize = (off_t)ptr->tarFile->size;
+        ptr->offSize = (off_t) ptr->tarFile->size;
     } else {
-        cntSize = (ssize_t)count;
+        cntSize = (ssize_t) count;
         memcpy(buf, ptr->tarFile->content + ptr->offSize, count);
-        ptr->offSize += (off_t)count;
+        ptr->offSize += (off_t) count;
     }
     //printf("Succeed and return %zd.\n", cntSize);
     //printf("filename: \"%s\", offSize = %ld, fileSize = %zu, destSize = %lu\n",ptr->tarFile->name, ptr->offSize, ptr->tarFile->size, sizeof(buf));
@@ -294,6 +294,7 @@ off_t rseek(int fd, off_t offset, int whence) {
         return -1;
     }
     rDescriptor *ptr = des[fd];
+    off_t temp = ptr->offSize;
     switch (whence) {
         case SEEK_SET :
             ptr->offSize = offset;
@@ -307,9 +308,11 @@ off_t rseek(int fd, off_t offset, int whence) {
         default:
             break;
     }
-    //printf("Succeed and return %ld.\n", ptr->offSize);
-    //printf("offSize = %ld, fileSize = %zu\n",ptr->offSize, ptr->tarFile->size);
-    return ptr->offSize;
+    if (ptr->offSize < 0) {
+        ptr->offSize = temp;
+        return -1;
+    } else
+        return ptr->offSize;
 }
 
 int rmkdir(const char *pathname) {
@@ -352,7 +355,7 @@ int rmkdir(const char *pathname) {
 //                    for (int k = 0; k <= len; k++) // strcpy(newDir->name, str);
 //                        newDir->name[k] = str[k];
                     str[len] = '\0';
-                    newDir->name = (char *)malloc((len + 1) * sizeof(char));
+                    newDir->name = (char *) malloc((len + 1) * sizeof(char));
                     strcpy(newDir->name, str);
                     newDir->type = true;
                     newDir->nextFile = ptr->sonFile;
@@ -414,7 +417,7 @@ int rmkdir(const char *pathname) {
             p = p->nextFile;
         }
         rFile *newDir = (rFile *) malloc(sizeof(rFile));
-        newDir->name = (char *)malloc((len + 1) * sizeof(char));
+        newDir->name = (char *) malloc((len + 1) * sizeof(char));
         strcpy(newDir->name, str);
         newDir->type = true;
         newDir->content = NULL;
