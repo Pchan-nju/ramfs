@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 typedef struct File {
-    char name[35];
+    char * name;
     bool type; // directory - true, file - false;
     size_t size;
     void *content;
@@ -155,6 +155,7 @@ int ropen(const char *pathname, int flags) {
 
         if (flags & O_CREAT) {
             rFile *newFile = (rFile *) malloc(sizeof(rFile));
+            newFile->name = (char *) malloc((len + 1) * sizeof(char));
             str[len] = '\0';
             strcpy(newFile->name, str);
 //            for (int k = 0; k <= len; k++) // strcpy
@@ -344,8 +345,11 @@ int rmkdir(const char *pathname) {
                         p = p->nextFile;
                     }
                     rFile *newDir = (rFile *) malloc(sizeof(rFile));
-                    for (int k = 0; k <= len; k++) // strcpy(newDir->name, str);
-                        newDir->name[k] = str[k];
+//                    for (int k = 0; k <= len; k++) // strcpy(newDir->name, str);
+//                        newDir->name[k] = str[k];
+                    str[len] = '\0';
+                    newDir->name = (char *)malloc((len + 1) * sizeof(char));
+                    strcpy(newDir->name, str);
                     newDir->type = true;
                     newDir->nextFile = ptr->sonFile;
                     newDir->content = NULL;
@@ -404,9 +408,9 @@ int rmkdir(const char *pathname) {
             p = p->nextFile;
         }
         rFile *newDir = (rFile *) malloc(sizeof(rFile));
-//        strcpy(newDir->name, str);
-        for (int k = 0; k <= len; k++)
-            newDir->name[k] = str[k];
+        str[len] = '\0';
+        newDir->name = (char *)malloc((len + 1) * sizeof(char));
+        strcpy(newDir->name, str);
         newDir->type = true;
         newDir->content = NULL;
         newDir->size = -1;
