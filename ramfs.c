@@ -162,8 +162,8 @@ int ropen(const char *pathname, int flags) {
             newFile->nextFile = ptr->sonFile;
             newFile->type = false;
             newFile->sonFile = NULL;
-            newFile->content = (void *) malloc(8);
-            memset(newFile->content, 0, 8);
+            newFile->content = (void *) malloc(1);
+            memset(newFile->content, 0, 1);
             newFile->size = 0;
             ptr->sonFile = newFile;
 
