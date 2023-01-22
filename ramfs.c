@@ -657,6 +657,7 @@ int runlink(const char *pathname) {
 
 void init_ramfs() {
     root = (rFile *) malloc(sizeof(rFile));
+    root->name = (char *) malloc(sizeof(char) * 5);
     strcpy(root->name, "root");
     root->nextFile = NULL;
     root->sonFile = NULL;
