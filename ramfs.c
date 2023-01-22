@@ -141,8 +141,8 @@ int ropen(const char *pathname, int flags) {
                 if ((flags & O_TRUNC) && (flags & O_RDWR) && !p->type) {
                     newDes->offSize = 0;
                     free(p->content);
-                    p->content = (void *) malloc(8);
-                    memset(p->content, 0, sizeof(p->content));
+                    p->content = (void *) malloc(1);
+                    memset(p->content, 0, 1);
                     p->size = 0;
                 }
                 //printf("Success.\n");
@@ -163,7 +163,7 @@ int ropen(const char *pathname, int flags) {
             newFile->type = false;
             newFile->sonFile = NULL;
             newFile->content = (void *) malloc(8);
-            memset(newFile->content, 0, sizeof(newFile->content));
+            memset(newFile->content, 0, 8);
             newFile->size = 0;
             ptr->sonFile = newFile;
 
@@ -259,13 +259,6 @@ ssize_t rread(int fd, void *buf, size_t count) {
         return -1;
     }
     ssize_t cntSize = 0;
-//    buf = (void *)realloc(buf, (count + 1) * sizeof(*buf));
-    //printf("cntSize = %zu, offSize = %ld\n", cntSize, ptr->offSize);
-//    for (int i = 0; i < count && ptr->offSize < ptr->tarFile->size; i++) {
-//        cntSize++;
-//        *((char *) buf + i) = *((char *) ptr->tarFile->content + ptr->offSize);
-//        ptr->offSize++;
-//    }
     if (count + ptr->offSize >= ptr->tarFile->size) {
         cntSize = (ssize_t)ptr->tarFile->size - ptr->offSize;
         memcpy(buf, ptr->tarFile->content + ptr->offSize, cntSize);
@@ -355,6 +348,8 @@ int rmkdir(const char *pathname) {
                         newDir->name[k] = str[k];
                     newDir->type = true;
                     newDir->nextFile = ptr->sonFile;
+                    newDir->content = NULL;
+                    newDir->size = -1;
                     ptr->sonFile = newDir;
                 } else {
                     rFile *p = ptr->sonFile;
@@ -413,6 +408,8 @@ int rmkdir(const char *pathname) {
         for (int k = 0; k <= len; k++)
             newDir->name[k] = str[k];
         newDir->type = true;
+        newDir->content = NULL;
+        newDir->size = -1;
         newDir->nextFile = ptr->sonFile;
         ptr->sonFile = newDir;
     }
@@ -630,11 +627,13 @@ int runlink(const char *pathname) {
                 } else {
                     if (ptr->sonFile == p) {
                         ptr->sonFile = p->nextFile;
+                        free(p->content);
                         free(p);
                         //printf("Success.\n");
                         return 0;
                     } else {
                         prep->nextFile = p->nextFile;
+                        free(p->content);
                         free(p);
                         //printf("Sucess.\n");
                         return 0;
