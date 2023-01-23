@@ -230,12 +230,13 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
 
     // expand content
     if (ptr->offSize + count >= ptr->tarFile->size) {
-        void *tmpContent = (void *) malloc(ptr->offSize + count + 1);
-        memset(tmpContent, '\0', ptr->offSize + count + 1);
-        memcpy(tmpContent, ptr->tarFile->content, ptr->tarFile->size);
+//        void *tmpContent = (void *) malloc(ptr->offSize + count + 1);
+//        memset(tmpContent, '\0', ptr->offSize + count + 1);
+//        memcpy(tmpContent, ptr->tarFile->content, ptr->tarFile->size);
+//        free(ptr->tarFile->content);
+//        ptr->tarFile->content = tmpContent;
+        ptr->tarFile->content = (void *) realloc(ptr->tarFile->content, ptr->offSize + count + 1);
         ptr->tarFile->size = ptr->offSize + count;
-        free(ptr->tarFile->content);
-        ptr->tarFile->content = tmpContent;
     }
     memcpy(ptr->tarFile->content + ptr->offSize, buf, count);
     ptr->offSize += (off_t) count;
@@ -663,6 +664,7 @@ void init_ramfs() {
     strcpy(root->name, "root");
     root->nextFile = NULL;
     root->sonFile = NULL;
+    root->content = NULL;
     root->type = true; // this is a directory, and it is allowed to create file under it.
     memset(des, 0, sizeof(des));
 }
