@@ -236,6 +236,7 @@ ssize_t rwrite(int fd, const void *buf, size_t count) {
 //        free(ptr->tarFile->content);
 //        ptr->tarFile->content = tmpContent;
         ptr->tarFile->content = (void *) realloc(ptr->tarFile->content, ptr->offSize + count + 1);
+        memset(ptr->tarFile->content + ptr->tarFile->size, 0, ptr->offSize + count - ptr->tarFile->size);
         ptr->tarFile->size = ptr->offSize + count;
     }
     memcpy(ptr->tarFile->content + ptr->offSize, buf, count);
